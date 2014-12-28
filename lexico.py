@@ -11,6 +11,7 @@ palres =["if","do","while",'var','function','return',"true","false","prompt","do
 coment = ['/']
 
 salida = open("./salida.txt","w")
+tokens = []
 linea = 0 
 colum = 0
 lexema = ""
@@ -21,7 +22,7 @@ entrada = fuente.readlines() #lo ponemos en entrada
 # Axioma S. Seria el primer estado del AFD
 
 def main():
-	global lexema,letras,sep,ops,caracter,linea,colum
+	global lexema,letras,sep,ops,caracter,linea,colum,tokens
 	caracter = sigCar()
 	while(caracter):
 		lexema = ""
@@ -59,6 +60,7 @@ def main():
 		elif caracter == '\n': # SALTOS DE LINEA
 			colum = 0
 			linea = linea + 1
+			TokenSL()
 			if linea < len(entrada):
 				caracter = sigCar()
 			else: 
@@ -66,7 +68,8 @@ def main():
 		else: # CASO EN EL QUE NO SE CUMPLA NINGUNA DE LAS REGLAS ANTERIORES -> LO LEIDO NO ES ENTENDIDO POR LA GRAMATICA
 			print("ERROR: "+caracter+" no es un simbolo valido ["+str(linea+1)+","+str(colum)+"]")
 			caracter = sigCar();
-
+	print tokens
+#	return tokens
 # Los diferentes estados del automata
 
 def digito():
@@ -152,22 +155,47 @@ def sigCar():
 # Definicion de los tokens
 
 def TokenDEC(lexema):
-	print("(DECIMAL, "+lexema+")")
+	global tokens, salida
+	tdec ={"codigo": lexema, "linea": linea, "colum": colum}
+	tokens.append(tdec)
+	salida.write("(DEC, "+lexema+")\n")
+#	print("(DECIMAL, "+lexema+")")
 	
 def TokenCAD(lexema):
-	print("(CADENA, "+lexema+")")
+	global tokens
+	tcad ={"codigo": lexema, "linea": linea, "colum": colum}
+	tokens.append(tcad)
+	salida.write("(CAD, "+lexema+")\n")
 
 def TokenOP(lexema):
-	print("(OPERADOR, "+lexema+")")
+	global tokens,salida
+	top ={"codigo": lexema, "linea": linea, "colum": colum}
+	tokens.append(top)
+	salida.write("(OP, "+lexema+")\n")
 
 def TokenSEP(lexema):
-	print("(SEPARADOR, "+lexema+")")
+	global tokens,salida
+	tsep ={"codigo": lexema, "linea": linea, "colum": colum}
+	tokens.append(tsep)
+	salida.write("(SEP, "+lexema+")\n")
 	
 def TokenID(lexema):
-	print("(ID, "+lexema+")")
+	global tokens,salida
+	tid ={"codigo": lexema, "linea": linea, "colum": colum}
+	tokens.append(tid)
+	salida.write("(ID, "+lexema+")\n")
 	
 def TokenPR(lexema):
-	print("(PAL_RESERVADA, "+lexema+")")
+	global tokens, salida
+	tpr ={"codigo": lexema, "linea": linea, "colum": colum}
+	tokens.append(tpr)
+	salida.write("(PR, "+lexema+")\n")
+
+def TokenSL():
+	global tokens,salida
+	tsl ={"codigo": "SL", "linea": linea, "colum": colum}
+	tokens.append(tsl)
+	salida.write("(SL, "+lexema+")\n")
 
 # MAIN
 
