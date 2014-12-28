@@ -1,0 +1,128 @@
+P -> {TSG = CreaTabla(); DesplG = 0, Activa = TSG} P' {imprimeTS(); DestruyeTSG()} (1)
+
+P' -> FP'1 {If F.tipo == tipo_ok then P'.tipo = P'1.tipo 
+			else P'.tipo = tipo_error} (2)
+
+P' -> SP' {If S.tipo == tipo_ok then P'.tipo = P'1.tipo  
+			else P'.tipo = tipo_error} (3)
+
+P' -> DP' DP'1 {P'.tipo = P'1.tipo} (4)
+
+P' -> LAMBDA {P'.tipo = tipo_ok} (5)
+
+S -> if(E) SS1 {if E.tipo == lógico then
+					S.tipo = S1.tipo
+				else S.tipo = tipo_error} (6) 
+S -> do {\n S(1)S1 \n}while (E)\n {If E.tipo == lógico AND S1.tipo == tipo_ok then
+									S.tipo = S1.tipo
+								else
+									S.tipo = tipo_error} (7)
+S -> doc.write(E); \n 	{if E.tipo != tipo_erro
+							then S.tipo = tipo_ok
+						else S.tipo = tipo_error} (8)
+S -> prompt(id); \n {if buscarTS(activa, id) == true
+						then S.tipo = tipo_ok
+					else S.tipo = tipo_error} (9)
+
+
+S -> return R; \n {If zona_funcion == true then
+					if R.tipo = enterológico then S.tipo = tipo_ok;
+					else S.tipo = tipo_error} (10)
+
+S -> idS' {If BuscarTipoTS(activa, id.entrada) == enterologico and E.tipo == enterologico then S.tipo = tipo_ok
+				else S.tipo = tipo_error} (11)
+
+D -> {zona_declaracion = true} var id Z ;\n
+		{if Z.tipo != tipo_error then 
+			AñadeTipoTS(TSG, id.entrada, Z.tipo, DesplG, ambito); 
+			DesplG = DesplG + Z.ancho
+			D.tipo = tipo_ok
+		else then D.tipo = tipo_error
+			zona_declaracion = false} (12)
+
+Z -> = I {Z.tipo = I.tipo; Z.ancho = I.ancho} (13)
+Z -> lambda {Z.tipo = entero} (14)
+I = entero {I.tipo = entero; I.ancho = 2} (15)
+I = true {I.tipo = logico; I.ancho = 1} (16)
+I = false {I.tipo = lógico; I.ancho = 1} (17)
+
+
+
+S' -> =E; \n {S'.tipo = E.tipo} (18)
+S' -> +=E; \n {S'.tipo = E.tipo} (19)
+
+S1 -> SS1(1) {If S.tipo = tipo_ok then S1.tipo = S1(1).tipo 
+					else S1.tipo = tipo_error} (20)
+S1 -> LAMBDA {S1.tipo = tipo_ok} (21)
+
+R -> E {R.tipo = E.tipo} (22)
+R -> LAMBDA {R.tipo = enterológico} (23)
+
+F -> function {zona_function = true} 
+		 id(W) {AñadeTipoTS(TSG, id.entrada, W.tipo)}
+		 	{\n S}\n   {if S.tipo = tipo_ok then
+		 					F.tipo = S'.tipo
+			 			else 
+			 				S.tipo = tipo_error;
+						zona_funcion = false;
+						Activa = TSG} (24)
+
+E -> TE'  {If T.tipo == enterológico and E'.tipo == entlog then E.tipo = T.tipo 
+		else if (T.tipo AND E'.tipo) == enterológico then E.tipo = entero
+				else E.tipo = tipo_error} (25)
+
+E' -> +TE'1 {If T.tipo == enterologico and E'1.tipo == entlog then E'.tipo = T.tipo 
+			else if (T.tipo AND E'1.tipo) == enterológico then E'.tipo = entero
+				else E'.tipo = tipo_error} (26)
+E' -> LAMBDA {E'.tipo = entlog} (27)
+
+T -> HT' {If H.tipo == enterologico and T'.tipo == entlog then T.tipo = H.tipo
+		else if (H.tipo AND T'.tipo) == enterológico then T.tipo = entero
+				else T.tipo = tipo_error} (28)
+
+T' -> ==XT1' {if X.tipo == enterologico and T'1.tipo == entlog then T'.tipo = X.tipo
+		else if (X.tipo AND T'1.tipo) == enterológico then T.tipo = lógico
+				else T.tipo = tipo_error} (29)
+T' -> LAMBDA {T'.tipo = entlog} (30)
+
+X -> GX' {If G.tipo == enterologico and X'.tipo == entlog then X.tipo = G.tipo
+		else if (G.tipo AND X'.tipo) = enterológico then X.tipo = lógico 
+				else X.tipo = tipo_error} (31)
+
+X' -> ||GX'1  {If G.tipo == enterologico and X'1.tipo == entlog then X'.tipo = G.tipo
+			else if (G.tipo AND X'1.tipo == enterológico) then X'.tipo = lógico
+				else X'.tipo = tipo_error} (32)
+X' -> LAMBDA {X'.tipo = entlog} (33)
+
+G -> (E) {G.tipo = E.tipo} (34)
+G -> idG' 	{tipo = BuscarTipoTS(activa, id.entrada);
+			if tipo == enterologico AND G'.tipo == entlog then 
+				G.tipo = tipo;
+			else if tipo == enterologico AND G'.tipo != entlog then
+				if comparaTipoArgumentos(id) == G'.tipo then
+					G.tipo = entlog // Funcion
+				else G.tipo = tipo_error
+           	else G.tipo = tipo_error} (35)
+G -> ent {G.tipo = entero} (36)
+G -> cadena {G.tipo = tipo_ok} (37)
+
+G' -> (L) {G'.tipo = L.tipo} (38)
+G' -> LAMBDA {G'.tipo = enterologico} (39)
+
+L -> EL' {If E.tipo OR L'.tipo == tipo_error then
+				L.tipo = tipo_error
+		  else if L'.tipo == tipo_ok then
+		  		L.tipo = E.tipo
+		  else L.tipo == E.tipo ProductoCartesiano L'.tipo} (40)
+L -> LAMBDA lambda {L.tipo = tipo_ok} (41)
+
+L' -> ,L {L'.tipo = L.tipo}  (42)
+L' -> LAMBDA {L'.tipo = tipo_ok} (43)
+
+W -> idW' {If W'.tipo == tipo_ok
+				then W.tipo = enterológico
+			else W.tipo = enterológico ProductoCartesiano W'.tipo} (44)
+W -> LAMBDA {W.tipo -> tipo_ok} (45)
+
+W' -> ,W {W'.tipo = W.tipo} (46)
+W' -> LAMBDA {W'.tipo -> tipo_ok} (47)

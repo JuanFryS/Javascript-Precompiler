@@ -1,0 +1,65 @@
+P -> P'					(0)
+
+P' -> DP'				(1)
+P' -> SP'				(2)
+P' -> LAMBDA			(3)
+
+S -> if(E) S1			(4)
+S -> do {S} while (E)	(5)
+S -> doc.write(E)		(6)
+S -> prompt(id)			(7)
+S -> return R			(8)
+S -> idS'				(9)
+S -> var id Z			(10)
+
+S' -> =E 				(11)
+S' -> +=E 				(12)
+
+S1 -> SS1				(13)
+S1 -> LAMBDA			(14)
+
+R -> E 					(15)
+R -> LAMBDA				(16)
+
+D -> function (id)W{S} 	(17)
+
+E -> TE' 				(18)
+
+E' -> +TE 				(19)
+E' -> LAMBDA 			(20)
+
+T -> HT' 				(21)
+
+T' -> ==I 				(22)
+T' -> LAMBDA 			(23)
+
+I -> FI'				(24)
+
+I' -> ||F 				(25)
+I' -> LAMBDA 			(26)
+
+F -> (E) 				(27)
+F -> idF' 				(28)
+F -> ent 				(29)
+F -> cadena 			(30)
+
+F' -> (L) 				(31)
+F' -> LAMBDA 			(32)
+
+L -> EL' 				(33)
+L -> LAMBDA 			(34)
+
+L' -> ,L 				(35)
+L' -> LAMBDA 			(36)
+
+W -> idW' 				(37)
+W -> LAMBDA 			(38)
+
+W' -> ,W 				(39)
+W' -> LAMBDA 			(40)
+
+Z = Z'					(41)
+
+Z' -> entero			(42)
+Z' -> true				(43)
+Z' -> logico			(44)
