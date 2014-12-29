@@ -54,17 +54,16 @@ class Tabla:
 
 	# Añadir identificador a la TS devuelve True si se realizo correctamente o False si no se pudo insertar
 	# Por ejemplo porque ya hay un id con ese lexema
-	def anadirIDTS(lexema):
-		dev = false;
+	def anadirIDTS(lexema, ambito):
+		dev = false
 		if lexema not in pal_res:
-			if busca_lexema == false:
-				info = Info("identificador", ambito, 0, 0, [])
+			if busca_lexema(lexema) == False:
+				info = Info("", ambito, 0, 0, [])
 				self.entradas[lexema] = info
 				dev = true
-		elif lexema == function:
-			info = Info("function", ambito, 0,0,[])
-			self.entradas[lexema] = info
-			dev true
+		if ambito == "local":
+			info = Info("function", ambito, 0, 0, [])
+			dev = True
 		return dev
 
 	def anadirTipoTS(tipo, lexema, ambito):
