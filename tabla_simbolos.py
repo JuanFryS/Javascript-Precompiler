@@ -24,7 +24,8 @@ class Tabla:
 	pal_res = ["var", "function", "return", "if", "do", "while", "true", "false", "prompt", "document.write"]
 	desplazamiento_ts_global = 0
 	desplazamiento_ts_local = 0
-	espacios = {"entero": 2, "logico": 1, "entlog": 2}
+	desplazamiento = {"entero": 2, "logico": 1, "entlog": 2}
+	tipos = ["entero", "logico", "entlog"]
 
 	# Constructor
 	def __init__(self, general):
@@ -53,3 +54,36 @@ class Tabla:
 
 	# Añadir identificador a la TS devuelve True si se realizo correctamente o False si no se pudo insertar
 	# Por ejemplo porque ya hay un id con ese lexema
+	def anadirIDTS(lexema):
+		dev = false;
+		if lexema not in pal_res:
+			if busca_lexema == false:
+				info = Info("identificador", ambito, 0, 0, [])
+				self.entradas[lexema] = info
+				dev = true
+		elif lexema == function:
+			info = Info("function", ambito, 0,0,[])
+			self.entradas[lexema] = info
+			dev true
+		return dev
+
+	def anadirTipoTS(tipo, lexema, ambito):
+		global desplazamiento_ts_global, desplazamiento_ts_local, desplazamiento, tipo
+		if busca_lexema(lexema) == true:
+			if tipo in tipos:
+				if lexema not in pal_res:
+					self.entradas[lexema].tipo = tipo
+					self.entradas[lexema].ambito = ambito
+					if ambito = "global":
+						self.entradas[lexema].desplazamiento = desplazamiento_ts_global
+						desplazamiento_ts_global = desplazamiento_ts_global + desplazamiento[tipo]
+						return true
+					else:
+						self.entradas[lexema].desplazamiento = desplazamiento_ts_local
+						desplazamiento_ts_local = desplazamiento_ts_local + desplazamiento[tipo]
+						return true
+				elif lexema == "function":
+					self.entradas[lexema].tipo = tipo
+					self.entradas[lexema].ambito = ambito
+					return true
+		return false
