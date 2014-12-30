@@ -97,5 +97,17 @@ class Tabla:
 
 	# Son tipos iguales dice si los argumentos de una funcion son los que se declararon
 	def sonTiposIguales(args1, args2):
-		dev = False
-		
+		dev = True
+		for tipo1,tipo2 in zip(args1,args2):
+			if tipo1 not in tipos or tipo2 not in tipos:
+				dev = False
+
+		return dev
+
+	# Vaciar tabla reinicia la tabla, borra todo el contenido
+	def vaciar():
+		entradas.clear()
+
+	# Cambia ámbito convierte el desplazamiento local en 0
+	def cambiarAmbito():
+		self.desplazamiento_ts_local = 0
