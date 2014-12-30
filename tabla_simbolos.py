@@ -84,4 +84,18 @@ class Tabla:
 						dev = True
 		return dev
 
-	
+	# Añadir argumentos recibe el id de la funcion y una lista con los tipos de los argumentos
+	def anadirTipoArgs(lexema, args):
+		dev = False
+		info = entradas.get(lexema, False)
+		if info:
+			info.num_par = len(args)
+			for tipo in args:
+				info.tipo_par.append(tipo)
+			dev = True
+		return dev
+
+	# Son tipos iguales dice si los argumentos de una funcion son los que se declararon
+	def sonTiposIguales(args1, args2):
+		dev = False
+		
