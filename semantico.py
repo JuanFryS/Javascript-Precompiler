@@ -30,6 +30,7 @@ tokenPC = {"codigo": ";", "linea": 0, "colum": 0}
 tokenDW = {"codigo": "document.write", "linea": 0, "colum": 0}
 tokenP = {"codigo": "prompt", "linea": 0, "colum": 0}
 tokenF = {"codigo" : "function", "linea" : 0, "colum": 0}
+tokenV = {"codigo": "var", "linea": 0, "colum": 0}
 
 def scan(token):
 
@@ -154,7 +155,7 @@ def estadoS():
 					sig_token = tokens.pop()
 					if sig_token["codigo"] == tokenSL["codigo"]):
 						sig_token = tokens.pop()
-						if e != "tipo_error":
+						if e not = "tipo_error":
 							return "tipo_ok"
 						else:
 							return "tipo_error"
@@ -167,16 +168,73 @@ def estadoS():
 		else:
 			error(sig_token)
 	
-	elif....... :
-
+	elif sig_token["codigo"] == tokenP["codigo"]:
+		sig_token = tokens.pop()
+		if sig_token["codigo"] == "(":
+			sig_token == tokens.pop()
+			if TSactiva.busca_lexema(sig_token["codigo"]):
+				tipo = TSactiva.buscaTipoTS(sig_token["codigo"])
+				if tipo == "":
+					TSactiva.anadirIDTS("entero",sig_token["codigo"], "global")
+				sig_token = tokens.pop()
+				if sig_token["codigo"] == ")":
+					sig_token = tokens.pop()
+					if sig_token["codigo"] == tokenPC["codigo"]:
+						sig_token = tokens.pop()
+						if sig_token["codigo"] == tokenSL["codigo"]):
+							sig_token = tokens.pop()
+							return "tipo_ok"
+						else:
+							error(sig_token)
+					else:
+						error(sig_token)
+				else:
+					error(sig_token)
+			else:
+				return "tipo_error"
+		else:
+			error(sig_token)
+	elif sig_token["codigo"] == tokenPR["codigo"]:
+		sig_token = tokens.pop()
+		r = estadoR()
+		if sig_token["codigo"] == tokenPC["codigo"]:
+			if sig_token["codigo"] == tokenSL["codigo"]:
+				if funcion = True:
+					if r = "enterologico":
+						return "tipo_ok"
+					else:
+						return "tipo_error"
+				else:
+					##### TENGO QUE DEFINIR QUE ERROR IRÁ AQUÍ.
+			else:
+				error(sig_token)
+		else:
+			error(sig_token)
+	elif TSactiva.busca_lexema(sig_token["codigo"]):
+		tipo = TSactiva.buscaTipoTS(sig_token["codigo"])
+		if tipo == "":
+			TSactiva.anadirIDTS("entlog", sig_token["codigo"], "global")
+		sig_token = tokens.pop()
+		sprima = estadoSprima()
+		if TSactiva.buscaTipoTS(sig_token["codigo"]) in enterologico and sprima in enterologico:
+			return "tipo_ok"
+		else:
+			return "tipo_error"
 
 def estadoD():
+	Declaracion = True
+	if sig_token["codigo"] = tokenV["codigo"]:
+		
+
 
 
 def estadoZ():
 
 
 def estadoI():
+
+
+def estadoSprima():
 
 
 def estadoSuno():
