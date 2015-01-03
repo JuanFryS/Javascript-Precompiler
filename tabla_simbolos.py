@@ -111,3 +111,13 @@ class Tabla:
 	# Cambia ámbito convierte el desplazamiento local en 0
 	def cambiarAmbito():
 		self.desplazamiento_ts_local = 0
+
+	def imprimirTS(fichero, nombre):
+		if nombre == "global":
+			fichero.write("############# Tabla General ############\n")
+		else:
+			fichero.write("############# Tabla Local ##############")
+			fichero.write(nombre)
+			fichero.write("\n")
+		for clave, valor in entradas.iteritems():
+			
