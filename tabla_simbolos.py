@@ -67,6 +67,14 @@ class Tabla:
 			dev = True
 		return dev
 
+	def buscaTipoTS(lexema):
+		if busca_lexema(lexema) == True:
+			tipo = lexema["tipo"]
+			if tipo in tipos:
+				return tipo
+			else:
+				return ""
+
 	def anadirTipoTS(tipo, lexema, ambito):
 		# global desplazamiento_ts_global, desplazamiento_ts_local, desplazamiento, tipo
 		dev = False
