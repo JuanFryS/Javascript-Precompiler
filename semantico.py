@@ -29,6 +29,7 @@ tokenSL = {"codigo": "SL", "linea": 0, "colum": 0}
 tokenPC = {"codigo": ";", "linea": 0, "colum": 0}
 tokenDW = {"codigo": "document.write", "linea": 0, "colum": 0}
 tokenP = {"codigo": "prompt", "linea": 0, "colum": 0}
+tokenF = {"codigo" : "function", "linea" : 0, "colum": 0}
 
 def scan(token):
 
@@ -40,7 +41,6 @@ def main():
 	tokens = lexico.main(entrada, tsGeneral, sys.argv[1], fich_err)
 	tokenFIN = {"codigo": "EOF", "linea": 0, "colum": 0}
 	tokens.append(tokenFIN)
-	tokens.append(tokenFIN)
 	tokens.reverse()
 	sig_token = tokens.pop()
 	estadoP()
@@ -51,7 +51,7 @@ def estadoP():
 	TSactiva = tsGeneral
 	estadoPprima()
 	tabla_simbolos.imprimirTS() #Dependiendo del nombre que se ponga en TS
-	tabla_simbolos.destruirTS() #Dependiendo del nombre que se ponga en TS
+	tabla_simbolos.vaciar()
 
 def estadoPprima():
 	global TSactiva
@@ -67,7 +67,7 @@ def estadoPprima():
 
 	# Caso P' -> SP'1
 	# First de regla: P' -> SP' : id, do, document.write, prompt, return, id
-	elif sig_token[codigo] in (firstIF[codigo], firstDO[codigo], firstDW[codigo], firstP[codigo], firstR[codigo]) or TSactiva.buscarTS(sig_token["codigo"]):
+	elif sig_token[codigo] in [firstIF[codigo], firstDO[codigo], firstDW[codigo], firstP[codigo], firstR[codigo]] or TSactiva.busca_lexema(sig_token["codigo"]):
 		s = estadoS()
 		pp = estadoPprima()
 		if s == "tipo_ok":
@@ -103,11 +103,71 @@ def estadoS():
 			return s
 		else:
 			return "tipo_error"
-	if sig_token["codigo"] == tokenDO["codigo"]:
+	elif sig_token["codigo"] == tokenDO["codigo"]:
 		sig_token = tokens.pop()
 		if sig_token["codigo"] == "{":
 			sig_token = tokens.pop()
-			
+			if sig_token["codigo"] == tokenSL["codigo"]:
+				sig_token = tokens.pop()
+				s = estadoS()
+				s1 = estadoSuno()
+				if sig_token["codigo"] == tokenSL["codigo"]:
+					sig_token == tokens.pop()
+					if sig_token["codigo"] == "}":
+						sig_token == tokens.pop()
+						if sig_token["codigo"] == tokenW["codigo"]:
+							sig_token == tokens.pop()
+							if sig_token["codigo"] == "(":
+								sig_token == tokens.pop()
+								e = estadoE()
+								if sig_token["codigo"] == ")":
+									sig_token == tokens.pop()
+									if sig_token["codigo"] == tokenSL["codigo"]:
+										if ((e = logico) and (s1 = "tipo_ok")
+											return "tipo_ok"
+										else:
+											return "tipo_error"
+									else:
+										error(sig_token)
+								else:
+									error(sig_token)
+							else:
+								error(sig_token)
+						else:
+							error(sig_token)
+					else:
+						error(sig_token)
+				else:
+					error(sig_token)
+			else:
+				error(sig_token)
+		else:
+			error(sig_token)
+	elif sig_token["codigo"] == tokenDW["codigo"]:
+		sig_token = tokens.pop()
+		if sig_token["codigo"] == "(":
+			sig_token == tokens.pop()
+			e = estadoE()
+			if sig_token["codigo"] == ")":
+				sig_token = tokens.pop()
+				if sig_token["codigo"] == tokenPC["codigo"]:
+					sig_token = tokens.pop()
+					if sig_token["codigo"] == tokenSL["codigo"]):
+						sig_token = tokens.pop()
+						if e != "tipo_error":
+							return "tipo_ok"
+						else:
+							return "tipo_error"
+					else:
+						error(sig_token)
+				else:
+					error(sig_token)
+			else:
+				error(sig_token)
+		else:
+			error(sig_token)
+	
+	elif....... :
 
 
 def estadoD():
