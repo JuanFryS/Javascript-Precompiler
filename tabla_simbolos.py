@@ -128,4 +128,17 @@ class Tabla:
 			fichero.write(nombre)
 			fichero.write("\n")
 		for clave, valor in entradas.iteritems():
-			
+			if valor.tipo  == "reservada":
+				fichero.write("%s\n", clave)
+			elif valor.tipo == "proc":
+				fichero.write("lexema: {0}, tipo: {1}, num_par: {2}, ".format(clave, valor.tipo, str(valor.num_par)))
+				fichero.write("tipo_par: [ ")
+				for tipo in valor.tipo_par:
+					fichero.write("{0} ".format(tipo))
+				fichero.write("], ")
+				fichero.write("ambito: {0}\n".format(valor.ambito))
+			elif valor.tipo == "entero" or valor.tipo == "entlog" or valor.tipo == "logico":
+				fichero.write("lexema: {0}, tipo: {1}, desplazamiento: {3}, ambito: {4}\n".format(clave, 
+					valor.tipo, str(valor.desplazamiento), valor.ambito))
+
+		fichero.write("############################################\n\n")
