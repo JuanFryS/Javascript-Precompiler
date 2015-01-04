@@ -58,7 +58,7 @@ def estadoPprima():
 	global TSactiva
 	# First de regla: P' -> FP'1 : function
 	# Caso P' -> FP'1
-	if sig_token[codigo] == firstF[codigo]:
+	if sig_token[codigo] == tokenF[codigo]:
 		f = estadoF()
 		pp = estadoPprima()
 		if f == "tipo_ok":
@@ -68,7 +68,7 @@ def estadoPprima():
 
 	# Caso P' -> SP'1
 	# First de regla: P' -> SP' : id, do, document.write, prompt, return, id
-	elif sig_token[codigo] in [firstIF[codigo], firstDO[codigo], firstDW[codigo], firstP[codigo], firstR[codigo]] or TSactiva.busca_lexema(sig_token["codigo"]):
+	elif sig_token[codigo] in [tokenIF[codigo], tokenDO[codigo], tokenDW[codigo], tokenP[codigo], tokenR[codigo]] or TSactiva.busca_lexema(sig_token["codigo"]):
 		s = estadoS()
 		pp = estadoPprima()
 		if s == "tipo_ok":
@@ -78,7 +78,7 @@ def estadoPprima():
 
 	# Caso P' -> DP'1
 	# First de regla: P' -> DP' : var
-	elif sig_token[codigo] == firstV[codigo]:
+	elif sig_token[codigo] == tokenV[codigo]:
 		d = estadoD()
 		pp = estadoPprima()
 		return pp
