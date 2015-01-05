@@ -14,17 +14,9 @@ sig_token = {}
 TSactiva = None
 
 tokenPR = {"codigo": "return", "linea": 0, "colum": 0}
-	#tokenA = {"codigo": "(", "linea": 0, "colum": 0}
-	#tokenC = {"codigo": ")", "linea": 0, "colum": 0}
-	#tokenI = {"codigo": sig_token["codigo"], "linea": 0, "colum": 0}
- 	#tuplaI = sig_token["codigo"]
-tokenE = {"codigo": "=", "linea": 0, "colum": 0}
-tokenMI = {"codigo": "+=", "linea": 0, "colum": 0}
 tokenIF = {"codigo": "if", "linea": 0, "colum": 0}
 tokenDO = {"codigo": "do", "linea": 0, "colum": 0}
 tokenW = {"codigo": "while", "linea": 0, "colum": 0}
-	#tokenAc = {"codigo": "{", "linea": 0, "colum": 0}	
-	#tokenCc = {"codigo": "}", "linea": 0, "colum": 0}
 tokenSL = {"codigo": "SL", "linea": 0, "colum": 0}
 tokenPC = {"codigo": ";", "linea": 0, "colum": 0}
 tokenDW = {"codigo": "document.write", "linea": 0, "colum": 0}
@@ -32,8 +24,20 @@ tokenP = {"codigo": "prompt", "linea": 0, "colum": 0}
 tokenF = {"codigo" : "function", "linea" : 0, "colum": 0}
 tokenV = {"codigo": "var", "linea": 0, "colum": 0}
 
-def scan(token):
+tokenTerm = {"codigo" : "". "linea": 0, "colum": 0}	
 
+def error(token):
+	print("ERROR: En la línea "+token["linea"]+", columna "+token["colum"])+", se recibe el valor no esperado: "+token["codigo"])
+	fich_err.write("ERROR: En la línea "+token["linea"]+", columna "+token["colum"])+", se recibe el valor no esperado: "+token["codigo"]+"\n")
+
+def scan(token):
+	global sig_token
+	if sig_token["codigo"] == token["codigo"]:
+		sig_token = tokens.pop()
+		return True	
+	else:
+		error(sig_token)
+		return False
 
 def main():
 	fich = open(sys.argv[1])
@@ -88,132 +92,95 @@ def estadoPprima():
 		return "tipo_ok"
 
 def estadoS():
+	# S -> if(E) S1
 	if sig_token["codigo"] == tokenIF["codigo"]:
-		sig_token = tokens.pop()
-		if sig_token["codigo"] == "(":
-			sig_token = tokens.pop()
-			e = estadoE()
-			if sig_token["codigo"] == ")":
-				sig_token = tokens.pop()
-				s = estadoS()
-			else:
-				error(sig_token)
-		else:
-			error(sig_token)
+		scan(tokenIF)
+		tokenTerm["codigo"] = "("
+		scan(tokenTerm)
+		e = estadoE()
+		tokenTerm["codigo"] = ")"
+		scan(tokenTerm)
+		s = estadoS()
 		if e == "logico":
 			return s
 		else:
 			return "tipo_error"
+
+	# S -> do {\n S1S'' \n}while (E)\n
 	elif sig_token["codigo"] == tokenDO["codigo"]:
-		sig_token = tokens.pop()
-		if sig_token["codigo"] == "{":
-			sig_token = tokens.pop()
-			if sig_token["codigo"] == tokenSL["codigo"]:
-				sig_token = tokens.pop()
-				s = estadoS()
-				s1 = estadoSuno()
-				if sig_token["codigo"] == tokenSL["codigo"]:
-					sig_token == tokens.pop()
-					if sig_token["codigo"] == "}":
-						sig_token == tokens.pop()
-						if sig_token["codigo"] == tokenW["codigo"]:
-							sig_token == tokens.pop()
-							if sig_token["codigo"] == "(":
-								sig_token == tokens.pop()
-								e = estadoE()
-								if sig_token["codigo"] == ")":
-									sig_token == tokens.pop()
-									if sig_token["codigo"] == tokenSL["codigo"]:
-										if ((e = logico) and (s1 = "tipo_ok")
-											return "tipo_ok"
-										else:
-											return "tipo_error"
-									else:
-										error(sig_token)
-								else:
-									error(sig_token)
-							else:
-								error(sig_token)
-						else:
-							error(sig_token)
-					else:
-						error(sig_token)
-				else:
-					error(sig_token)
-			else:
-				error(sig_token)
+		scan(tokenDO)
+		tokenTerm["codigo"] = "{"
+		scan(tokenTerm)
+		scan(tokenSL)
+		s = estadoS()
+		s1 = estadoS2prima()
+		scan(tokenSL)
+		tokenTerm["codigo"] = "}"
+		scan(tokenTerm)
+		scan(tokenW)
+		scan(tokenSL)
+		tokenTerm["codigo"] = "("
+		scan(tokenTerm)
+		e = estadoE()
+		tokenTerm["codigo"] = ")"
+		scan(tokenTerm)
+		scan(tokenSL)
+		if ((e = logico) and (s1 = "tipo_ok")
+			return "tipo_ok"
 		else:
-			error(sig_token)
+			return "tipo_error"
+
+	# S -> doc.write(E); \n
 	elif sig_token["codigo"] == tokenDW["codigo"]:
-		sig_token = tokens.pop()
-		if sig_token["codigo"] == "(":
-			sig_token == tokens.pop()
-			e = estadoE()
-			if sig_token["codigo"] == ")":
-				sig_token = tokens.pop()
-				if sig_token["codigo"] == tokenPC["codigo"]:
-					sig_token = tokens.pop()
-					if sig_token["codigo"] == tokenSL["codigo"]):
-						sig_token = tokens.pop()
-						if e not = "tipo_error":
-							return "tipo_ok"
-						else:
-							return "tipo_error"
-					else:
-						error(sig_token)
-				else:
-					error(sig_token)
-			else:
-				error(sig_token)
+		scan(tokenDW)
+		tokenTerm["codigo"] = "("
+		scan(tokenTerm)
+		e = estadoE()
+		tokenTerm["codigo"] = ")"
+		scan(tokenTerm)
+		scan(tokenPC)
+		scan(tokenSL)
+		if e not = "tipo_error":
+			return "tipo_ok"
 		else:
-			error(sig_token)
-	
+			return "tipo_error"
+
+	# S -> prompt(id); \n	
 	elif sig_token["codigo"] == tokenP["codigo"]:
-		sig_token = tokens.pop()
-		if sig_token["codigo"] == "(":
-			sig_token == tokens.pop()
-			if TSactiva.busca_lexema(sig_token["codigo"]):
-				tipo = TSactiva.buscaTipoTS(sig_token["codigo"])
-				if tipo == "":
-					TSactiva.anadirIDTS("entero",sig_token["codigo"], "global")
-				sig_token = tokens.pop()
-				if sig_token["codigo"] == ")":
-					sig_token = tokens.pop()
-					if sig_token["codigo"] == tokenPC["codigo"]:
-						sig_token = tokens.pop()
-						if sig_token["codigo"] == tokenSL["codigo"]):
-							sig_token = tokens.pop()
-							return "tipo_ok"
-						else:
-							error(sig_token)
-					else:
-						error(sig_token)
-				else:
-					error(sig_token)
+		scan(tokenP)
+		tokenTerm["codigo"] = "("
+		scan(tokenTerm)
+		if TSactiva.busca_lexema(sig_token["codigo"]):
+			tipo = TSactiva.buscaTipoTS(sig_token["codigo"])
+			if tipo == "":
+				TSactiva.anadirTipoTS("entero",sig_token["codigo"], "global")
+			tokenTerm["codigo"] = ")"
+			scan(tokenTerm)	
+			scan(tokenPC)
+			scan(tokenSL)	
+			return "tipo_ok"
+		else:
+			return "tipo_error"
+
+	# S -> return R; \n
+	elif sig_token["codigo"] == tokenPR["codigo"]:
+		scan(tokenPR)
+		r = estadoR()
+		scan(tokenPC)
+		scan(tokenSL)
+		if funcion = True:
+			if r = "enterologico":
+				return "tipo_ok"
 			else:
 				return "tipo_error"
 		else:
-			error(sig_token)
-	elif sig_token["codigo"] == tokenPR["codigo"]:
-		sig_token = tokens.pop()
-		r = estadoR()
-		if sig_token["codigo"] == tokenPC["codigo"]:
-			if sig_token["codigo"] == tokenSL["codigo"]:
-				if funcion = True:
-					if r = "enterologico":
-						return "tipo_ok"
-					else:
-						return "tipo_error"
-				else:
-					##### TENGO QUE DEFINIR QUE ERROR IRÁ AQUÍ.
-			else:
-				error(sig_token)
-		else:
-			error(sig_token)
+			##### TENGO QUE DEFINIR QUE ERROR IRÁ AQUÍ.
+	
+	# S -> idS'
 	elif TSactiva.busca_lexema(sig_token["codigo"]):
 		tipo = TSactiva.buscaTipoTS(sig_token["codigo"])
 		if tipo == "":
-			TSactiva.anadirIDTS("entlog", sig_token["codigo"], "global")
+			TSactiva.anadirTipoTS("entlog", sig_token["codigo"], "global")
 		sig_token = tokens.pop()
 		sprima = estadoSprima()
 		if TSactiva.buscaTipoTS(sig_token["codigo"]) in enterologico and sprima in enterologico:
@@ -223,25 +190,85 @@ def estadoS():
 
 def estadoD():
 	Declaracion = True
-	if sig_token["codigo"] = tokenV["codigo"]:
-		
-
-
-
+	scan(tokenV)
+	# PREGUNTAR A LUIS!!!
+			
 def estadoZ():
-
+	# Z -> = I
+	tokenTerm["codigo"] = "="
+	if sig_token["codigo"] == tokenTerm["codigo"]:
+		scan(tokenTerm)
+		i = estadoI()
+		return i
+	else:
+		return "entero"
 
 def estadoI():
-
+	# I = true
+	if sig_token["codigo"] == "true":
+		tokenTerm["codigo"] = "true"
+		scan(tokenTerm)
+		return "logico"
+	# I = false
+	elif sig_token["codigo"] == "false":
+		tokenTerm["codigo"] = "false"
+		scan(tokenTerm)
+		return logico
+	# I = entero
+	elif sig_token["codigo"].isdigit():
+		scan(sig_token["codigo"])
+		return "entero"
+	# Se añade este else para contemplar un error???=
+	else:
+		error(sig_token["codigo"])
+		return "tipo_error"
 
 def estadoSprima():
+	# S' -> =E; \n
+	if sig_token["codigo"] == "="
+		tokenTerm["codigo"] = "="
+		scan(tokenTerm)
+		e = estadoE()
+		scan(tokenPC)
+		scan(tokenSL)
+		return e
+	# S' -> +=E; \n
+	elif sig_token["codigo"] == "+=":
+		tokenTerm["codigo"] = "+="
+		scan(tokenTerm)
+		e = estadoE()
+		scan(tokenPC)
+		scan(tokenSL)
+		return e
+	# Se añade este else para contemplar un error???=
+	else:
+		error(sig_token["codigo"])
+		return "tipo_error"	
 
-
-def estadoSuno():
-
+def estadoS2prima():
+	 # S'' -> SS''1
+	if sig_token[codigo] in [tokenIF[codigo], tokenDO[codigo], tokenDW[codigo], tokenP[codigo], tokenR[codigo]] or TSactiva.busca_lexema(sig_token["codigo"]):
+		s = estadoS()
+		s2prima = estadoS2prima()
+		if s == "tipo_ok":
+			return s2prima
+		else:
+			return "tipo_error"
+	# S'' -> LAMBDA
+	else:
+		return "tipo_ok"
 
 def estadoR():
+	# R -> E
+	# First(E): (, id, ent, cadena
 
+	# ¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿COMO REPRESENTO UNA CADENA DE CARACTERES PARA VER SI ES UNA CADENA????????''	
+	if sig_token["codigo"] == "(" or sig_token["codigo"].isdigit() or TSactiva.busca_lexema(sig_token["codigo"]): 
+		e = estadoE()
+		return e
+	# R -> LAMBDA
+	else:
+		return "entlog"
 
 def estadoF():
 
