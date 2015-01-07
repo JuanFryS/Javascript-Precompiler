@@ -24,7 +24,7 @@ tokenP = {"codigo": "prompt", "linea": 0, "colum": 0}
 tokenF = {"codigo" : "function", "linea" : 0, "colum": 0}
 tokenV = {"codigo": "var", "linea": 0, "colum": 0}
 
-tokenTerm = {"codigo" : "". "linea": 0, "colum": 0}	
+tokenTerm = {"codigo" : "", "linea": 0, "colum": 0}	
 
 def error(token):
 	print("ERROR: En la línea "+token["linea"]+", columna "+token["colum"])+", se recibe el valor no esperado: "+token["codigo"])
@@ -71,7 +71,7 @@ def estadoPprima():
 			return "tipo_error"
 
 	# Caso P' -> SP'1
-	# First de regla: P' -> SP' : id, do, document.write, prompt, return, id
+	# First de regla: P' -> SP' : if, do, document.write, prompt, return, id
 	elif sig_token[codigo] in [tokenIF[codigo], tokenDO[codigo], tokenDW[codigo], tokenP[codigo], tokenR[codigo]] or TSactiva.busca_lexema(sig_token["codigo"]):
 		s = estadoS()
 		pp = estadoPprima()
@@ -118,14 +118,13 @@ def estadoS():
 		tokenTerm["codigo"] = "}"
 		scan(tokenTerm)
 		scan(tokenW)
-		scan(tokenSL)
 		tokenTerm["codigo"] = "("
 		scan(tokenTerm)
 		e = estadoE()
 		tokenTerm["codigo"] = ")"
 		scan(tokenTerm)
 		scan(tokenSL)
-		if ((e = logico) and (s1 = "tipo_ok")
+		if e = "logico" and s1 = "tipo_ok":
 			return "tipo_ok"
 		else:
 			return "tipo_error"
@@ -140,7 +139,7 @@ def estadoS():
 		scan(tokenTerm)
 		scan(tokenPC)
 		scan(tokenSL)
-		if e not = "tipo_error":
+		if not (e == "tipo_error"):
 			return "tipo_ok"
 		else:
 			return "tipo_error"
@@ -168,8 +167,8 @@ def estadoS():
 		r = estadoR()
 		scan(tokenPC)
 		scan(tokenSL)
-		if funcion = True:
-			if r = "enterologico":
+		if funcion: # No sé qué es función
+			if r == "enterologico":
 				return "tipo_ok"
 			else:
 				return "tipo_error"

@@ -3,17 +3,17 @@ P -> {TSG = CreaTabla(); DesplG = 0, Activa = TSG} P' {imprimeTS(); DestruyeTSG(
 P' -> FP'1 {If F.tipo == tipo_ok then P'.tipo = P'1.tipo 
 			else P'.tipo = tipo_error} (2)
 
-P' -> SP' {If S.tipo == tipo_ok then P'.tipo = P'1.tipo  
+P' -> SP'1 {If S.tipo == tipo_ok then P'.tipo = P'1.tipo  
 			else P'.tipo = tipo_error} (3)
 
-P' -> DP' DP'1 {P'.tipo = P'1.tipo} (4)
+P' -> DP'1 {P'.tipo = P'1.tipo} (4)
 
 P' -> LAMBDA {P'.tipo = tipo_ok} (5)
 
-S -> if(E) SS1 {if E.tipo == lógico then
+S -> if(E) S1 {if E.tipo == lógico then
 					S.tipo = S1.tipo
 				else S.tipo = tipo_error} (6) 
-S -> do {\n S(1)S1 \n}while (E)\n {If E.tipo == lógico AND S1.tipo == tipo_ok then
+S -> do {\n S(1)S'' \n}while (E)\n {If E.tipo == lógico AND S1.tipo == tipo_ok then
 									S.tipo = S1.tipo
 								else
 									S.tipo = tipo_error} (7)
