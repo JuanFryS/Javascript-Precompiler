@@ -13,8 +13,8 @@ P' -> LAMBDA {P'.tipo = tipo_ok} (5)
 S -> if(E) S1 {if E.tipo == lógico then
 					S.tipo = S1.tipo
 				else S.tipo = tipo_error} (6) 
-S -> do {\n S(1)S'' \n}while (E)\n {If E.tipo == lógico AND S1.tipo == tipo_ok then
-									S.tipo = S1.tipo
+S -> do {\n S1S'' \n}while (E)\n {If E.tipo == lógico AND S''.tipo == tipo_ok then
+									S.tipo = S''.tipo
 								else
 									S.tipo = tipo_error} (7)
 S -> doc.write(E); \n 	{if E.tipo != tipo_erro
@@ -51,9 +51,9 @@ I = false {I.tipo = lógico; I.ancho = 1} (17)
 S' -> =E; \n {S'.tipo = E.tipo} (18)
 S' -> +=E; \n {S'.tipo = E.tipo} (19)
 
-S1 -> SS1(1) {If S.tipo = tipo_ok then S1.tipo = S1(1).tipo 
-					else S1.tipo = tipo_error} (20)
-S1 -> LAMBDA {S1.tipo = tipo_ok} (21)
+S'' -> SS''1 {If S.tipo = tipo_ok then S''.tipo = S''1.tipo 
+					else S''.tipo = tipo_error} (20)
+S'' -> LAMBDA {S''.tipo = tipo_ok} (21)
 
 R -> E {R.tipo = E.tipo} (22)
 R -> LAMBDA {R.tipo = enterológico} (23)
@@ -76,8 +76,8 @@ E' -> +TE'1 {If T.tipo == enterologico and E'1.tipo == entlog then E'.tipo = T.t
 				else E'.tipo = tipo_error} (26)
 E' -> LAMBDA {E'.tipo = entlog} (27)
 
-T -> HT' {If H.tipo == enterologico and T'.tipo == entlog then T.tipo = H.tipo
-		else if (H.tipo AND T'.tipo) == enterológico then T.tipo = entero
+T -> XT' {If X.tipo == enterologico and T'.tipo == entlog then T.tipo = X.tipo
+		else if (X.tipo AND T'.tipo) == enterológico then T.tipo = entero
 				else T.tipo = tipo_error} (28)
 
 T' -> ==XT1' {if X.tipo == enterologico and T'1.tipo == entlog then T'.tipo = X.tipo
