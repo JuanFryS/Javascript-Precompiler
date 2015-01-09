@@ -259,9 +259,8 @@ def estadoS2prima():
 
 def estadoR():
 	# R -> E
-	# First(E): (, id, ent, cadena
-
-	# ¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿COMO REPRESENTO UNA CADENA DE CARACTERES PARA VER SI ES UNA CADENA????????''	
+	# First(E): (, id, ent
+		
 	if sig_token["codigo"] == "(" or sig_token["codigo"].isdigit() or TSactiva.busca_lexema(sig_token["codigo"]): 
 		e = estadoE()
 		return e
@@ -270,10 +269,38 @@ def estadoR():
 		return "entlog"
 
 def estadoF():
-
+	if sig_token["codigo"] == tokenF["codigo"]:
+		scan(tokenF)
+		zona_funcion = True
+		tokenID = {"codigo": sig_token["codigo"], "linea": 0, "colum": 0}
+		if TSactiva.busca_lexema(tokenID["codigo"]):
+			scan(tokenID)
+			TSactiva.anadirTipoTS("funcion", tokenID["codigo"],global)
+			ambito = tokenID["codigo"]
+			tokenTerm["codigo"] = "("
+			scan(tokenTerm)
+			w = estadoW()
+			tokenTerm["codigo"] = ")"
+			TSactiva.anadirTipoArgs(tokenID["codigo"],w)
+			tokenTerm["codigo"] = "{"
+			scan(tokenTerm)
+			scan(tokenSL)
+			s = estadoS
+			tokenTerm["codigo"] = "}"
+			scan(tokenTerm)
+			scan(tokenSL)
+			if s == "tipo_ok":
+				return "tipo_ok"
+			else:
+				s == "tipo_error"
+			zona_funcion = False
 
 def estadoE():
-
+	t = estadoT()
+	eprima = estadoEprima()
+	if t in enterologico and eprima == "entlog":
+		return t
+	elif t == eprima and t in enterologico:
 
 def estadoEprima():
 
