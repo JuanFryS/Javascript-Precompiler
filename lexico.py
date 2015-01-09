@@ -30,9 +30,6 @@ def main():
 			lexema = lexema + caracter
 			caracter = sigCar()
 			digito()
-		elif caracter == '\"': # CADENAS
-			caracter = sigCar()
-			cadena()
 		elif caracter in ops: # OPERADORES
 			lexema = lexema + caracter
 			caracter = sigCar()
@@ -78,14 +75,6 @@ def digito():
 		lexema = lexema + caracter
 		caracter = sigCar()
 	TokenDEC(lexema)
-
-def cadena():
-	global lexema, caracter
-	while caracter != '\"':
-		lexema = lexema + caracter
-		caracter = sigCar()
-	caracter = sigCar()
-	TokenCAD(lexema)
 
 def operador():
 	global lexema, caracter
@@ -160,12 +149,6 @@ def TokenDEC(lexema):
 	tokens.append(tdec)
 	salida.write("(DEC, "+lexema+")\n")
 #	print("(DECIMAL, "+lexema+")")
-	
-def TokenCAD(lexema):
-	global tokens
-	tcad ={"codigo": lexema, "linea": linea, "colum": colum}
-	tokens.append(tcad)
-	salida.write("(CAD, "+lexema+")\n")
 
 def TokenOP(lexema):
 	global tokens,salida
