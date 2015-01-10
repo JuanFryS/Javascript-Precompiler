@@ -1,9 +1,14 @@
+# -*- coding: UTF-8 -*-
 # Juan Francisco Salamanca Carmona #
 
-"""
-	En este archivo se encuentra el código correspondiente al
-	Analizador Semantico Descendente Recursivo
-"""
+#
+#	En este archivo se encuentra el código correspondiente al
+#	Analizador Semantico Descendente Recursivo
+#
+
+import sys
+import tabla_simbolos
+import lexico
 
 digitos = ['0','1','2','3','4','5','6','7','8','9']
 enterologico = ["entero", "logico", "entlog"]
@@ -27,8 +32,8 @@ tokenV = {"codigo": "var", "linea": 0, "colum": 0}
 tokenTerm = {"codigo" : "", "linea": 0, "colum": 0}	
 
 def error(token):
-	print("ERROR: En la línea "+token["linea"]+", columna "+token["colum"])+", se recibe el valor no esperado: "+token["codigo"])
-	fich_err.write("ERROR: En la línea "+token["linea"]+", columna "+token["colum"])+", se recibe el valor no esperado: "+token["codigo"]+"\n")
+	print("ERROR: En la línea "+token["linea"]+", columna "+token["colum"]+", se recibe el valor no esperado: "+token["codigo"])
+	fich_err.write("ERROR: En la línea "+token["linea"]+", columna "+token["colum"]+", se recibe el valor no esperado: "+token["codigo"]+"\n")
 
 def scan(token):
 	global sig_token
@@ -62,7 +67,7 @@ def estadoPprima():
 	global TSactiva
 	# First de regla: P' -> FP'1 : function
 	# Caso P' -> FP'1
-	if sig_token[codigo] == tokenF[codigo]:
+	if sig_token["codigo"] == tokenF["codigo"]:
 		f = estadoF()
 		pp = estadoPprima()
 		if f == "tipo_ok":
@@ -124,7 +129,7 @@ def estadoS():
 		tokenTerm["codigo"] = ")"
 		scan(tokenTerm)
 		scan(tokenSL)
-		if e = "logico" and s1 = "tipo_ok":
+		if e == "logico" and s1 == "tipo_ok":
 			return "tipo_ok"
 		else:
 			return "tipo_error"
@@ -174,6 +179,7 @@ def estadoS():
 				return "tipo_error"
 		else:
 			##### TENGO QUE DEFINIR QUE ERROR IRÁ AQUÍ.
+			error(sig_token["codigo"])
 	
 	# S -> idS'
 	elif TSactiva.busca_lexema(sig_token["codigo"]):
@@ -187,9 +193,9 @@ def estadoS():
 		else:
 			return "tipo_error"
 
-def estadoD():
-	Declaracion = True
-	scan(tokenV)
+#def estadoD():
+#	Declaracion = True
+#	scan(tokenV)
 	# PREGUNTAR A LUIS!!!
 			
 def estadoZ():
@@ -217,14 +223,14 @@ def estadoI():
 	elif sig_token["codigo"].isdigit():
 		scan(sig_token["codigo"])
 		return "entero"
-	# Se añade este else para contemplar un error???=
+	# Se añade este else para contemplar un error???
 	else:
 		error(sig_token["codigo"])
 		return "tipo_error"
 
 def estadoSprima():
 	# S' -> =E; \n
-	if sig_token["codigo"] == "="
+	if sig_token["codigo"] == "=":
 		tokenTerm["codigo"] = "="
 		scan(tokenTerm)
 		e = estadoE()
@@ -260,7 +266,7 @@ def estadoS2prima():
 def estadoR():
 	# R -> E
 	# First(E): (, id, ent
-		
+
 	if sig_token["codigo"] == "(" or sig_token["codigo"].isdigit() or TSactiva.busca_lexema(sig_token["codigo"]): 
 		e = estadoE()
 		return e
@@ -269,13 +275,14 @@ def estadoR():
 		return "entlog"
 
 def estadoF():
+	# F -> function (id)W{S}
 	if sig_token["codigo"] == tokenF["codigo"]:
 		scan(tokenF)
 		zona_funcion = True
 		tokenID = {"codigo": sig_token["codigo"], "linea": 0, "colum": 0}
 		if TSactiva.busca_lexema(tokenID["codigo"]):
 			scan(tokenID)
-			TSactiva.anadirTipoTS("funcion", tokenID["codigo"],global)
+			TSactiva.anadirTipoTS("funcion", tokenID["codigo"],"global")
 			ambito = tokenID["codigo"]
 			tokenTerm["codigo"] = "("
 			scan(tokenTerm)
@@ -296,45 +303,195 @@ def estadoF():
 			zona_funcion = False
 
 def estadoE():
+	# E -> TE'
 	t = estadoT()
 	eprima = estadoEprima()
 	if t in enterologico and eprima == "entlog":
 		return t
-	elif t == eprima and t in enterologico:
+	elif t in enterologico and eprima in enterologico:
+		return "entero"
+	else:
+		return "tipo_error"
 
 def estadoEprima():
+	# E' -> +TE'
+	if sig_token["codigo"] == "+":
+		tokenTerm["codigo"] = "+"
+		scan(tokenTerm)
+		t = estadoT()
+		eprima = estadoEprima()
+		if t in enterologico and eprima == "entlog":
+			return t
+		elif t in enterologico and eprima in enterologico:
+			return "entero"
+		else:
+			return "tipo_error"
+	# E' -> LAMBDA
+	else:
+		return "entlog"
 
 
 def estadoT():
-
+	# T -> XT'
+	x = estadoX()
+	tprima = estadoTprima()
+	if x in enterologico and tprima == "entlog":
+		return x
+	elif x in enterologico and tprima in enterologico:
+		return "entero"
+	else:
+		return "tipo_error"
 
 def estadoTprima():
-
+	# T' -> ==XT'
+	if sig_token["codigo"] == "==":
+		tokenTerm["codigo"] = "=="
+		scan(tokenTerm)
+		x = estadoX()
+		tprima = estadoTprima()
+		if x in enterologico and tprima == "entlog":
+			return x
+		elif x in enterologico and tprima in enterologico:
+			return "logico"
+		else:
+			return "tipo_error"
+	# T' -> LAMBDA		
+	else:
+		return "entlog"
 
 def estadoX():
-
+	# X -> GX'
+	g = estadoG()
+	xprima = estadoXprima()
+	if g in enterologico and xprima == "entlog":
+		return g
+	elif g in enterologico and xprima in enterologico:
+		return "logico"
+	else:
+		return "tipo_error"
 
 def estadoXprima():
-
+	# X' -> ||GX'
+	if sig_token["codigo"] == "||":
+		tokenTerm["codigo"] = "||"
+		scan(tokenTerm)
+		g = estadoG()
+		xprima = estadoXprima()
+		if g in enterologico and xprima == "entlog":
+			return g
+		elif g in enterologico and xprima in enterologico:
+			return "logico"
+		else:
+			return "tipo_error"
+	# X' -> LAMBDA
+	else:
+		return "entlog"
 
 def estadoG():
-
+	# G -> (E)
+	if sig_token["codigo"] == "(":
+		tokenTerm["codigo"] = "("
+		scan(tokenTerm)
+		e = estadoE()
+		if sig_token["codigo"] == ")":
+			tokenTerm["codigo"] = ")"
+			scan(tokenTerm)
+			return e
+	# G -> idG'
+	elif TSactiva.busca_lexema(sig_token["codigo"]):
+		tipo = TSactiva.buscaTipoTS(sig_token["codigo"])
+		if tipo == "":
+			TSactiva.anadirTipoTS("entero", tokenID["codigo"],"global")
+			tipo = activa.buscaTipoTS(sig_token["codigo"])
+		scan(sig_token["codigo"])
+		gprima = estadoGprima()
+		if tipo in enterologico and gprima == "entlog":
+			return tipo
+		elif tipo in enterologico and not gprima == "entlog":
+			if TSactiva.sonTiposIguales(tipo, gprima):
+				return "entlog"
+			else:
+				return "tipo_error"
+		else:
+			return "tipo_error"
+	# G -> ent
+	elif sig_token["codigo"].isdigit():
+		scan(sig_token["codigo"])
+		return "entero"
+	else:
+		return "tipo_error"
 
 def estadoGprima():	
-
+	# G' -> (L)
+	if sig_token["codigo"] == "(":
+		tokenTerm["codigo"] = "("
+		scan(tokenTerm)
+		l = esadoL()
+		if sig_token["codigo"] == ")":
+			tokenTerm["codigo"] = ")"
+			scan(tokenTerm)
+			return l
+		else:
+			return "tipo_error"
+	# G' -> LAMBDA
+	else:
+		return "entlog"
 
 def estadoL():
+	#L -> EL'
+	if sig_token["codigo"] == "(" or sig_token["codigo"].isdigit() or TSactiva.busca_lexema(sig_token["codigo"]): 
+		e = estadoE()
+		auxiliar.append(e)
+		lprima = estadoLprima()
+		if e == "tipo_error" or lprima == "tipo_error":
+			return "tipo_error"
+		elif lprima == "tipo_ok":
+			return e
+		else:
+			tupla = tuple(auxiliar)
+			return auxiliar
+	# L -> LAMBDA
+	else:
+		return "tipo_ok"
 
 
 def estadoLprima():	
-
+	# L' -> ,L
+	if sig_token["codigo"] == ",":
+		tokenTerm["codigo"] = ","
+		scan(tokenTerm)
+		l = estadoL()
+		return l
+	# L' -> LAMBDA
+	else:
+		return "tipo_ok"
 
 def estadoW():
-
+	#W -> idW'
+	if TSactiva.busca_lexema(sig_token["codigo"]):
+		TSactiva.anadirTipoTS("entlog", sig_token["codigo"], ambito)
+		scan(sig_token["codigo"])
+		auxiliar.append("entlog")
+		wprima = estadoWprima()
+		if wprima == "tipo_ok":
+			return "entlog"
+		else:
+			t = tuple(aux_params)
+			return t
+	# W -> LAMBDA
+	else:
+		return "tipo_ok"
 
 def estadoWprima():	
-
-
+	# W' -> ,W
+	if sig_token["codigo"] == ",":
+		tokenTerm["codigo"] = ","
+		scan(tokenTerm)
+		w = estadoW()
+		return w
+	# W' -> LAMBDA
+	else:
+		return "tipo_ok"
 
 if __name__ == "__main__":
 	main()
