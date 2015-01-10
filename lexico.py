@@ -1,4 +1,11 @@
+# -*- coding: UTF-8 -*-
 # Juan Francisco Salamanca Carmona #
+
+#
+#	En este archivo se encuentra el código correspondiente al
+#	Analizador Léxico
+#
+
 
 import sys
 
@@ -9,20 +16,27 @@ sep = ['(',')','{','}',';',',']
 ops = ["+","=","|"]
 palres =["if","do","while",'var','function','return',"true","false","prompt","document.write"]
 coment = ['/']
-
-salida = open("./salida.txt","w")
 tokens = []
 linea = 0 
 colum = 0
 lexema = ""
 caracter = ''
-fuente = open(sys.argv[1]) #abrimos el fichero
-entrada = fuente.readlines() #lo ponemos en entrada
+ambito = "global"
+
+fich_tokens = open("./tokens.txt","w")
+ts = None
+entrada = None
 
 # Axioma S. Seria el primer estado del AFD
 
-def main():
-	global lexema,letras,sep,ops,caracter,linea,colum,tokens
+def main(entradaSem, tablaGeneral, nombre, fich_error):
+	global lexema,letras,sep,ops,caracter,linea,colum,tokens, entrada, ts
+	entrada = entradaSem
+	ts = tablaGeneral
+	fich_tokens.write("---------------> ")
+	fich_tokens.write(nombre)
+	fich_tokens.write(" <---------------\n")
+
 	caracter = sigCar()
 	while(caracter):
 		lexema = ""
@@ -63,10 +77,11 @@ def main():
 			else: 
 				caracter = None		
 		else: # CASO EN EL QUE NO SE CUMPLA NINGUNA DE LAS REGLAS ANTERIORES -> LO LEIDO NO ES ENTENDIDO POR LA GRAMATICA
-			print("ERROR: "+caracter+" no es un simbolo valido ["+str(linea+1)+","+str(colum)+"]")
+			fich_tokens.write("ERROR: "+caracter+" no es un simbolo valido ["+str(linea+1)+","+str(colum)+"]")
 			caracter = sigCar();
-	print tokens
-#	return tokens
+
+	fich_tokens.close()
+	return tokens
 # Los diferentes estados del automata
 
 def digito():
@@ -91,21 +106,34 @@ def operador():
 		TokenOP(lexema)
 	else:
 		print("ERROR: "+lexema+" no es un simbolo valido ["+str(linea+1)+","+str(colum-1)+"]")
-		return
+		fich_error.write("ERROR: "+lexema+" no es un simbolo valido ["+str(linea+1)+","+str(colum-1)+"]")
 
 def identificador():
-	global lexema, caracter
+	global lexema, caracter, ambito, ts
 #	caracter = sigCar()
 	while caracter in letras or caracter in digitos or caracter == '_':
-		lexema = lexema + caracter
+		lexema += caracter
 		caracter = sigCar()
-		if caracter == '.':
-			lexema = lexema + caracter
-			caracter = sigCar()
-			escritura()
-			return
-	if lexema in palres:
+		if caracter == ".":
+			if lexema == "document":
+				lexema += caracter
+				caracter = sigCar()
+				escritura()
+			else:
+				print("Error en la línea " + str(linea) + ", columna " + str(colum) + ": se recibe un punto (.) cuando no corresponde")
+				fich_error.write("Error en la línea " + str(linea) + ", columna " + str(colum) + ": se recibe un punto (.) cuando no corresponde")
+		else:
+			lexema += caracter
+			caracter = sigCar()	
+
+	if ts.esPR(lexema):
+		if lexema == "function":
+			ambito = "local"
 		TokenPR(lexema)
+	elif not ts.busca_lexema(lexema):
+		tsGeneral.anadirIDTS(lexema,ambito)
+		ambito = "global"
+		TokenID(lexema)
 	else:
 		TokenID(lexema)
 		
@@ -114,14 +142,14 @@ def escritura():
 	while caracter in letras:
 		lexema = lexema + caracter
 		caracter = sigCar()
-	if lexema != 'document.write':
+	if lexema != "document.write":
 		print("ERROR: "+lexema+" no es una palabra valida ["+str(linea+1)+","+str(colum)+"]")
+		fich_error.write("ERROR: "+lexema+" no es una palabra valida ["+str(linea+1)+","+str(colum)+"]")
 	else:
 		TokenPR(lexema)
 
 def separador():
 	TokenSEP(lexema)
-
 
 def comentario():
 	global caracter, lexema
@@ -131,11 +159,11 @@ def comentario():
 			caracter = sigCar()
 	else: 		
 		print("ERROR: \""+lexema+"\" no es un comentario valido. Ayuda: \"//\" ["+str(linea+1)+","+str(colum)+"]")
-
+		fich_error("ERROR: \""+lexema+"\" no es un comentario valido. Ayuda: \"//\" ["+str(linea+1)+","+str(colum)+"]")
 # Funcion para avanzar de caracter
 
 def sigCar():
-	global colum, linea, entrada
+	global colum, linea, entrada, lin
 	lin = entrada[linea]
 	car = lin[colum]
 	colum = colum + 1
@@ -144,43 +172,43 @@ def sigCar():
 # Definicion de los tokens
 
 def TokenDEC(lexema):
-	global tokens, salida
+	global tokens, fich_tokens
 	tdec ={"codigo": lexema, "linea": linea, "colum": colum}
 	tokens.append(tdec)
-	salida.write("(DEC, "+lexema+")\n")
+	fich_tokens.write("(DEC, "+lexema+")\n")
 #	print("(DECIMAL, "+lexema+")")
 
 def TokenOP(lexema):
-	global tokens,salida
+	global tokens,fich_tokens
 	top ={"codigo": lexema, "linea": linea, "colum": colum}
 	tokens.append(top)
-	salida.write("(OP, "+lexema+")\n")
+	fich_tokens.write("(OP, "+lexema+")\n")
 
 def TokenSEP(lexema):
-	global tokens,salida
+	global tokens,fich_tokens
 	tsep ={"codigo": lexema, "linea": linea, "colum": colum}
 	tokens.append(tsep)
-	salida.write("(SEP, "+lexema+")\n")
+	fich_tokens.write("(SEP, "+lexema+")\n")
 	
 def TokenID(lexema):
-	global tokens,salida
+	global tokens,fich_tokens
 	tid ={"codigo": lexema, "linea": linea, "colum": colum}
 	tokens.append(tid)
-	salida.write("(ID, "+lexema+")\n")
+	fich_tokens.write("(ID, "+lexema+")\n")
 	
 def TokenPR(lexema):
-	global tokens, salida
+	global tokens, fich_tokens
 	tpr ={"codigo": lexema, "linea": linea, "colum": colum}
 	tokens.append(tpr)
-	salida.write("(PR, "+lexema+")\n")
+	fich_tokens.write("(PR, "+lexema+")\n")
 
 def TokenSL():
-	global tokens,salida
+	global tokens,fich_tokens
 	tsl ={"codigo": "SL", "linea": linea, "colum": colum}
 	tokens.append(tsl)
-	salida.write("(SL, "+lexema+")\n")
+	fich_tokens.write("(SL, "+lexema+")\n")
 
 # MAIN
 
 if __name__ == "__main__":
-	main()
+	main(entrada, tsGeneral)
