@@ -193,10 +193,29 @@ def estadoS():
 		else:
 			return "tipo_error"
 
-#def estadoD():
-#	Declaracion = True
-#	scan(tokenV)
-	# PREGUNTAR A LUIS!!!
+def estadoD():
+	global activa, zonaDeclaracion, reglas, ambito
+	zonaDeclaracion = True
+	scan(tokenV)
+	tokenID = {"codigo": sig_token["codigo"], "linea": 0, "colum": 0}
+	tuplaI = sig_token["codigo"]
+	scan(tokenI)
+	z = estadoZ(tokenI)
+	scan(tokenPC)
+	scan(tokenSL)
+	if not (z == "tipo_error"):
+		if TSactiva.buscaTipoTS(tokenID["codigo"]) == "":
+			TSactiva.anadirTipoTS(z,tokenID["codigo"], ambito) # Añadimos tipo a la tabla activa
+		else:
+			zonaDeclaracion = False
+			error(sig_token["codigo"])
+			return "tipo_error"
+		zonaDeclaracion = False
+		return "tipo_ok"
+	else:
+			error(sig_token["codigo"])
+			zonaDeclaracion = False
+			return "tipo_error"
 			
 def estadoZ():
 	# Z -> = I
