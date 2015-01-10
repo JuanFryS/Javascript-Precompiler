@@ -1,8 +1,9 @@
-"""
-	En este archivo se encuentra el código correspondiente a
-	la tabla de símbolos, y la gestión de la misma mediante
-	los diferentes métodos declarados.
-"""
+# -*- coding: UTF-8 -*-
+#
+#	En este archivo se encuentra el código correspondiente a
+#	la tabla de símbolos, y la gestión de la misma mediante
+#	los diferentes métodos declarados.
+#
 
 class Info(object):
 	tipo = ""
@@ -20,6 +21,7 @@ class Info(object):
 		self.tipo_par = tipo_par
 
 class Tabla:
+	global pal_res
 	entradas = {}
 	pal_res = ["var", "function", "return", "if", "do", "while", "true", "false", "prompt", "document.write"]
 	desplazamiento_ts_global = 0
@@ -46,7 +48,8 @@ class Tabla:
 		return dev
 
 	# Comprobar si un lexema es palabra reservada devuelve también un booleano
-	def es_PR(lexema):
+	def esPR(lexema):
+		global pal_res
 		dev = False
 		if lexema in pal_res:
 			dev = True
@@ -82,7 +85,7 @@ class Tabla:
 			if tipo in tipos:
 				if lexema not in pal_res:
 					self.entradas[lexema].tipo = tipo
-					if ambito = "global":
+					if ambito == "global":
 						self.entradas[lexema].desplazamiento = desplazamiento_ts_global
 						desplazamiento_ts_global = desplazamiento_ts_global + desplazamiento[tipo]
 						dev = True
