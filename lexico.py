@@ -23,7 +23,8 @@ lexema = ""
 caracter = ''
 ambito = "global"
 
-fich_tokens = open("./tokens.txt","w")
+fich_tokens = open("./pruebas/tokens.txt","w")
+pruebats  = open("./pruebas/pruebats.txt","w")
 ts = None
 entrada = None
 
@@ -79,7 +80,7 @@ def main(entradaSem, tablaGeneral, nombre, fich_error):
 		else: # CASO EN EL QUE NO SE CUMPLA NINGUNA DE LAS REGLAS ANTERIORES -> LO LEIDO NO ES ENTENDIDO POR LA GRAMATICA
 			fich_tokens.write("ERROR: "+caracter+" no es un simbolo valido ["+str(linea+1)+","+str(colum)+"]")
 			caracter = sigCar();
-
+	ts.imprimirTS(pruebats, "global")
 	fich_tokens.close()
 	return tokens
 # Los diferentes estados del automata
@@ -112,8 +113,8 @@ def identificador():
 	global lexema, caracter, ambito, ts
 #	caracter = sigCar()
 	while caracter in letras or caracter in digitos or caracter == '_':
-		lexema += caracter
-		caracter = sigCar()
+		#lexema += caracter
+		#caracter = sigCar()
 		if caracter == ".":
 			if lexema == "document":
 				lexema += caracter
@@ -131,7 +132,7 @@ def identificador():
 			ambito = "local"
 		TokenPR(lexema)
 	elif not ts.busca_lexema(lexema):
-		tsGeneral.anadirIDTS(lexema,ambito)
+		ts.anadirIDTS(lexema,ambito)
 		ambito = "global"
 		TokenID(lexema)
 	else:
@@ -211,4 +212,4 @@ def TokenSL():
 # MAIN
 
 if __name__ == "__main__":
-	main(entrada, tsGeneral)
+	main(entrada, ts)

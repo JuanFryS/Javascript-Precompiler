@@ -13,11 +13,14 @@ import lexico
 digitos = ['0','1','2','3','4','5','6','7','8','9']
 enterologico = ["entero", "logico", "entlog"]
 tsGeneral = None
-fich_err = open("errores.txt", "w")
+fich_err = open("pruebas/errores.txt", "w")
+fich_parse = "pruebas/parse_" + sys.argv[1] + ".txt"
+parse = open(fich_parse,"w")
+fich_ts = open("./pruebas/fich_ts.txt","w")
 tokens = []
 sig_token = {} 
 TSactiva = None
-parse=[]
+reglas=[]
 
 tokenPR = {"codigo": "return", "linea": 0, "colum": 0}
 tokenIF = {"codigo": "if", "linea": 0, "colum": 0}
@@ -27,9 +30,10 @@ tokenSL = {"codigo": "SL", "linea": 0, "colum": 0}
 tokenPC = {"codigo": ";", "linea": 0, "colum": 0}
 tokenDW = {"codigo": "document.write", "linea": 0, "colum": 0}
 tokenP = {"codigo": "prompt", "linea": 0, "colum": 0}
-tokenF = {"codigo" : "function", "linea" : 0, "colum": 0}
+tokenF = {"codigo": "function", "linea" : 0, "colum": 0}
 tokenV = {"codigo": "var", "linea": 0, "colum": 0}
-
+tokenR = {"codigo": "return", "linea": 0, "colum": 0}
+# Token auxiliar para simbolos diferentes a los contemplados anteriormente.
 tokenTerm = {"codigo" : "", "linea": 0, "colum": 0}	
 
 def error(token):
@@ -46,6 +50,7 @@ def scan(token):
 		return False
 
 def main():
+	global sig_token,tokens,tsGeneral
 	fich = open(sys.argv[1])
 	entrada = fich.readlines()
 	tsGeneral = tabla_simbolos.Tabla(True)
@@ -54,23 +59,32 @@ def main():
 	tokens.append(tokenFIN)
 	tokens.reverse()
 	sig_token = tokens.pop()
+
+	fich_ts.write("---------------> ")
+	fich_ts.write("Tabla de simbolos de: " + sys.argv[1] )
+	fich_ts.write(" <---------------\n")
+
 	estadoP()
+	for regla in reglas:
+		parse.write(regla + "\n")
+	parse.close()
 	fich.close()
 	fich_err.close()
 
 def estadoP():
+	global TSactiva, reglas
 	TSactiva = tsGeneral
-	parse.append("D 1 ")
+	reglas.append("D 1 ")
 	estadoPprima()
-	tabla_simbolos.imprimirTS() #Dependiendo del nombre que se ponga en TS
-	tabla_simbolos.vaciar()
+	tsGeneral.imprimirTS(fich_ts,"global") #Dependiendo del nombre que se ponga en TS
+	tsGeneral.vaciar()
 
 def estadoPprima():
-	global TSactiva
+	global  sig_token, reglas, TSactiva
 	# First de regla: P' -> FP'1 : function
 	# Caso P' -> FP'1
 	if sig_token["codigo"] == tokenF["codigo"]:
-		parse.append("2 ")
+		reglas.append("2 ")
 		f = estadoF()
 		pp = estadoPprima()
 		if f == "tipo_ok":
@@ -80,8 +94,8 @@ def estadoPprima():
 
 	# Caso P' -> SP'1
 	# First de regla: P' -> SP' : if, do, document.write, prompt, return, id
-	elif sig_token[codigo] in [tokenIF[codigo], tokenDO[codigo], tokenDW[codigo], tokenP[codigo], tokenR[codigo]] or TSactiva.busca_lexema(sig_token["codigo"]):
-		parse.append("3 ")
+	elif sig_token["codigo"] in [tokenIF["codigo"], tokenDO["codigo"], tokenDW["codigo"], tokenP["codigo"], tokenR["codigo"]] or TSactiva.busca_lexema(sig_token["codigo"]):
+		reglas.append("3 ")
 		s = estadoS()
 		pp = estadoPprima()
 		if s == "tipo_ok":
@@ -91,21 +105,22 @@ def estadoPprima():
 
 	# Caso P' -> DP'1
 	# First de regla: P' -> DP' : var
-	elif sig_token[codigo] == tokenV[codigo]:
-		parse.append("4 ")
+	elif sig_token["codigo"] == tokenV["codigo"]:
+		reglas.append("4 ")
 		d = estadoD()
 		pp = estadoPprima()
 		return pp
 
 	# Caso P' -> Lambda	
 	else:
-		parse.append("5 ")
+		reglas.append("5 ")
 		return "tipo_ok"
 
 def estadoS():
+	global sig_token,reglas,tokenTerm,TSactiva
 	# S -> if(E) S1
 	if sig_token["codigo"] == tokenIF["codigo"]:
-		parse.append("6 ")
+		reglas.append("6 ")
 		scan(tokenIF)
 		tokenTerm["codigo"] = "("
 		scan(tokenTerm)
@@ -120,7 +135,7 @@ def estadoS():
 
 	# S -> do {\n S1S'' \n}while (E)\n
 	elif sig_token["codigo"] == tokenDO["codigo"]:
-		parse.append("7 ")
+		reglas.append("7 ")
 		scan(tokenDO)
 		tokenTerm["codigo"] = "{"
 		scan(tokenTerm)
@@ -144,7 +159,7 @@ def estadoS():
 
 	# S -> doc.write(E); \n
 	elif sig_token["codigo"] == tokenDW["codigo"]:
-		parse.append("8 ")
+		reglas.append("8 ")
 		scan(tokenDW)
 		tokenTerm["codigo"] = "("
 		scan(tokenTerm)
@@ -160,7 +175,7 @@ def estadoS():
 
 	# S -> prompt(id); \n	
 	elif sig_token["codigo"] == tokenP["codigo"]:
-		parse.append("9 ")
+		reglas.append("9 ")
 		scan(tokenP)
 		tokenTerm["codigo"] = "("
 		scan(tokenTerm)
@@ -178,7 +193,7 @@ def estadoS():
 
 	# S -> return R; \n
 	elif sig_token["codigo"] == tokenPR["codigo"]:
-		parse.append("10 ")
+		reglas.append("10 ")
 		scan(tokenPR)
 		r = estadoR()
 		scan(tokenPC)
@@ -194,7 +209,7 @@ def estadoS():
 	
 	# S -> idS'
 	elif TSactiva.busca_lexema(sig_token["codigo"]):
-		parse.append("11 ")
+		reglas.append("11 ")
 		tipo = TSactiva.buscaTipoTS(sig_token["codigo"])
 		if tipo == "":
 			TSactiva.anadirTipoTS("entlog", sig_token["codigo"], "global")
@@ -207,8 +222,8 @@ def estadoS():
 
 def estadoD():
 	# D -> var id Z ;\n
-	global activa, zonaDeclaracion, reglas, ambito
-	parse.append("12 ")
+	global TSactiva, zonaDeclaracion, reglas, ambito
+	reglas.append("12 ")
 	zonaDeclaracion = True
 	scan(tokenV)
 	tokenID = {"codigo": sig_token["codigo"], "linea": 0, "colum": 0}
@@ -232,33 +247,35 @@ def estadoD():
 			return "tipo_error"
 			
 def estadoZ():
+	global tokenTerm,sig_token,reglas
 	# Z -> = I
 	tokenTerm["codigo"] = "="
 	if sig_token["codigo"] == tokenTerm["codigo"]:
-		parse.append("13 ")
+		reglas.append("13 ")
 		scan(tokenTerm)
 		i = estadoI()
 		return i
 	else:
-		parse.append("14 ")
+		reglas.append("14 ")
 		return "entero"
 
 def estadoI():
+	global sig_token,reglas,tokenTerm
 	# I = true
 	if sig_token["codigo"] == "true":
-		parse.append("16 ")
+		reglas.append("16 ")
 		tokenTerm["codigo"] = "true"
 		scan(tokenTerm)
 		return "logico"
 	# I = false
 	elif sig_token["codigo"] == "false":
-		parse.append("17 ")
+		reglas.append("17 ")
 		tokenTerm["codigo"] = "false"
 		scan(tokenTerm)
 		return logico
 	# I = entero
 	elif sig_token["codigo"].isdigit():
-		parse.append("15 ")
+		reglas.append("15 ")
 		scan(sig_token["codigo"])
 		return "entero"
 	# Se añade este else para contemplar un error???
@@ -267,8 +284,10 @@ def estadoI():
 		return "tipo_error"
 
 def estadoSprima():
+	global sig_token,tokenTerm,reglas
 	# S' -> =E; \n
 	if sig_token["codigo"] == "=":
+		reglas.append("18 ")
 		tokenTerm["codigo"] = "="
 		scan(tokenTerm)
 		e = estadoE()
@@ -277,6 +296,7 @@ def estadoSprima():
 		return e
 	# S' -> +=E; \n
 	elif sig_token["codigo"] == "+=":
+		reglas.append("19 ")
 		tokenTerm["codigo"] = "+="
 		scan(tokenTerm)
 		e = estadoE()
@@ -289,8 +309,10 @@ def estadoSprima():
 		return "tipo_error"	
 
 def estadoS2prima():
+	global sig_token,reglas,TSactiva
 	 # S'' -> SS''1
 	if sig_token[codigo] in [tokenIF[codigo], tokenDO[codigo], tokenDW[codigo], tokenP[codigo], tokenR[codigo]] or TSactiva.busca_lexema(sig_token["codigo"]):
+		reglas.append("20 ")
 		s = estadoS()
 		s2prima = estadoS2prima()
 		if s == "tipo_ok":
@@ -299,22 +321,27 @@ def estadoS2prima():
 			return "tipo_error"
 	# S'' -> LAMBDA
 	else:
+		reglas.append("21 ")
 		return "tipo_ok"
 
 def estadoR():
+	global sig_token,TSactiva,reglas
 	# R -> E
 	# First(E): (, id, ent
-
 	if sig_token["codigo"] == "(" or sig_token["codigo"].isdigit() or TSactiva.busca_lexema(sig_token["codigo"]): 
+		reglas.append("22 ")
 		e = estadoE()
 		return e
 	# R -> LAMBDA
 	else:
+		reglas.append("23 ")
 		return "entlog"
 
 def estadoF():
+	global sig_token,zona_funcion,TSactiva,ambito,tokenTerm,reglas
 	# F -> function (id)W{S}
 	if sig_token["codigo"] == tokenF["codigo"]:
+		reglas.append("24 ")
 		scan(tokenF)
 		zona_funcion = True
 		tokenID = {"codigo": sig_token["codigo"], "linea": 0, "colum": 0}
@@ -341,6 +368,8 @@ def estadoF():
 			zona_funcion = False
 
 def estadoE():
+	global reglas
+	reglas.append("25 ")
 	# E -> TE'
 	t = estadoT()
 	eprima = estadoEprima()
@@ -352,8 +381,10 @@ def estadoE():
 		return "tipo_error"
 
 def estadoEprima():
+	global reglas, tokenTerm
 	# E' -> +TE'
 	if sig_token["codigo"] == "+":
+		reglas.append("26 ")
 		tokenTerm["codigo"] = "+"
 		scan(tokenTerm)
 		t = estadoT()
@@ -366,10 +397,13 @@ def estadoEprima():
 			return "tipo_error"
 	# E' -> LAMBDA
 	else:
+		reglas.append("27 ")
 		return "entlog"
 
 
 def estadoT():
+	global reglas
+	reglas.append("28 ")
 	# T -> XT'
 	x = estadoX()
 	tprima = estadoTprima()
@@ -381,8 +415,10 @@ def estadoT():
 		return "tipo_error"
 
 def estadoTprima():
+	global sig_token,tokenTerm,reglas
 	# T' -> ==XT'
 	if sig_token["codigo"] == "==":
+		reglas.append("29 ")
 		tokenTerm["codigo"] = "=="
 		scan(tokenTerm)
 		x = estadoX()
@@ -395,9 +431,12 @@ def estadoTprima():
 			return "tipo_error"
 	# T' -> LAMBDA		
 	else:
+		reglas.append("30 ")
 		return "entlog"
 
 def estadoX():
+	global reglas
+	reglas.append("31 ")
 	# X -> GX'
 	g = estadoG()
 	xprima = estadoXprima()
@@ -409,8 +448,10 @@ def estadoX():
 		return "tipo_error"
 
 def estadoXprima():
+	global reglas,sig_token,tokenTerm
 	# X' -> ||GX'
 	if sig_token["codigo"] == "||":
+		reglas.append("32 ")
 		tokenTerm["codigo"] = "||"
 		scan(tokenTerm)
 		g = estadoG()
@@ -423,11 +464,14 @@ def estadoXprima():
 			return "tipo_error"
 	# X' -> LAMBDA
 	else:
+		reglas.append("33 ")
 		return "entlog"
 
 def estadoG():
+	global TSactiva,sig_token,tokenTerm,reglas
 	# G -> (E)
 	if sig_token["codigo"] == "(":
+		reglas.append("34 ")
 		tokenTerm["codigo"] = "("
 		scan(tokenTerm)
 		e = estadoE()
@@ -437,11 +481,13 @@ def estadoG():
 			return e
 	# G -> idG'
 	elif TSactiva.busca_lexema(sig_token["codigo"]):
+		reglas.append("35 ")
 		tipo = TSactiva.buscaTipoTS(sig_token["codigo"])
+		tokenID = {"codigo": sig_token["codigo"], "linea": 0, "colum": 0}
 		if tipo == "":
 			TSactiva.anadirTipoTS("entero", tokenID["codigo"],"global")
-			tipo = activa.buscaTipoTS(sig_token["codigo"])
-		scan(sig_token["codigo"])
+			tipo = TSactiva.buscaTipoTS(sig_token["codigo"])
+		scan(sig_token)
 		gprima = estadoGprima()
 		if tipo in enterologico and gprima == "entlog":
 			return tipo
@@ -454,14 +500,17 @@ def estadoG():
 			return "tipo_error"
 	# G -> ent
 	elif sig_token["codigo"].isdigit():
-		scan(sig_token["codigo"])
+		reglas.append("36 ")
+		scan(sig_token)
 		return "entero"
 	else:
 		return "tipo_error"
 
 def estadoGprima():	
+	global sig_token,tokenTerm,reglas
 	# G' -> (L)
 	if sig_token["codigo"] == "(":
+		reglas.append("37 ")
 		tokenTerm["codigo"] = "("
 		scan(tokenTerm)
 		l = esadoL()
@@ -473,11 +522,14 @@ def estadoGprima():
 			return "tipo_error"
 	# G' -> LAMBDA
 	else:
+		reglas.append("38 ")
 		return "entlog"
 
 def estadoL():
+	global sig_token,TSactiva,reglas
 	#L -> EL'
 	if sig_token["codigo"] == "(" or sig_token["codigo"].isdigit() or TSactiva.busca_lexema(sig_token["codigo"]): 
+		reglas.append("39 ")
 		e = estadoE()
 		auxiliar.append(e)
 		lprima = estadoLprima()
@@ -490,23 +542,29 @@ def estadoL():
 			return auxiliar
 	# L -> LAMBDA
 	else:
+		reglas.append("40 ")
 		return "tipo_ok"
 
 
 def estadoLprima():	
+	global reglas,sig_token,tokenTerm
 	# L' -> ,L
 	if sig_token["codigo"] == ",":
+		reglas.append("41 ")
 		tokenTerm["codigo"] = ","
 		scan(tokenTerm)
 		l = estadoL()
 		return l
 	# L' -> LAMBDA
 	else:
+		reglas.append("42 ")
 		return "tipo_ok"
 
 def estadoW():
+	global TSactiva,sig_token,ambito,reglas
 	#W -> idW'
 	if TSactiva.busca_lexema(sig_token["codigo"]):
+		reglas.append("43 ")
 		TSactiva.anadirTipoTS("entlog", sig_token["codigo"], ambito)
 		scan(sig_token["codigo"])
 		auxiliar.append("entlog")
@@ -518,17 +576,21 @@ def estadoW():
 			return t
 	# W -> LAMBDA
 	else:
+		reglas.append("44 ")
 		return "tipo_ok"
 
 def estadoWprima():	
+	global reglas,sig_token,tokenTerm
 	# W' -> ,W
 	if sig_token["codigo"] == ",":
+		reglas.append("45 ")
 		tokenTerm["codigo"] = ","
 		scan(tokenTerm)
 		w = estadoW()
 		return w
 	# W' -> LAMBDA
 	else:
+		reglas.append("46 ")
 		return "tipo_ok"
 
 if __name__ == "__main__":
