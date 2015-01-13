@@ -70,12 +70,15 @@ class Tabla:
 	def anadirIDTS(lexema, ambito):
 		global pal_res, entradas
 		dev = False
+#		print("(TS)Lexema: "+ lexema + " y ambito: " +ambito)
 		if lexema not in pal_res:
-			if not lexema in entradas.keys():
+			if not lexema in entradas.keys() or not ambito == entradas[lexema].ambito:
+#				print("lexema: " + lexema + " y ambito: " + ambito)
 				info = Info("", ambito, 0, 0, [])
 				entradas[lexema] = info
+#				print(entradas[lexema].ambito)
 				dev = True
-		if ambito == "local":
+		if not ambito == "global":
 			info = Info("function", ambito, 0, 0, [])
 			entradas[lexema] = info
 			dev = True
@@ -95,18 +98,22 @@ class Tabla:
 	def anadirTipoTS(tipo, lexema, ambito):
 		global entradas, pal_res, desplazamiento_ts_global, desplazamiento_ts_local, desplazamiento, desplazamiento_ts_global
 		dev = False
+#		print("(TS)Lexema: "+ lexema + " y ambito: " +ambito)
 		if lexema in entradas.keys():
 			if tipo in tipos:
 				if lexema not in pal_res:
 					entradas[lexema].tipo = tipo
 					if ambito == "global":
+#						entradas[lexema].ambito = ambito
 						entradas[lexema].desplazamiento = desplazamiento_ts_global
 						desplazamiento_ts_global = desplazamiento_ts_global + desplazamiento[tipo]
 						dev = True
 					else:
+#						entradas[lexema].ambito = ambito
 						entradas[lexema].desplazamiento = desplazamiento_ts_local
 						desplazamiento_ts_local = desplazamiento_ts_local + desplazamiento[tipo]
 						dev = True
+#		print("(TS2)Lexema: "+ lexema + " y ambito: " +ambito)
 		return dev
 
 	# Añadir argumentos recibe el id de la funcion y una lista con los tipos de los argumentos
@@ -146,18 +153,13 @@ class Tabla:
 		self.desplazamiento_ts_local = 0
 
 	@staticmethod 
-	def imprimirTS(fichero, nombre):
+	def imprimirTS(fichero):
 		global entradas
-		if nombre == "global":
-			fichero.write("\n############# Tabla General ############\n")
-		else:
-			fichero.write("\n############# Tabla Local ##############")
-			fichero.write(nombre)
-			fichero.write("\n")
+		fichero.write("\n##################### Tabla de Simbolos ####################\n")
 		for clave, valor in entradas.iteritems():
 			if valor.tipo  == "reservada":
 				fichero.write("%s\n", clave)
-			elif valor.tipo == "proc":
+			elif valor.tipo == "funcion":
 				fichero.write("lexema: {0}, tipo: {1}, num_par: {2}, ".format(clave, valor.tipo, str(valor.num_par)))
 				fichero.write("tipo_par: [ ")
 				for tipo in valor.tipo_par:
@@ -168,4 +170,4 @@ class Tabla:
 				fichero.write("lexema: {0}, tipo: {1}, desplazamiento: {2}, ambito: {3}\n".format(clave, 
 					valor.tipo, str(valor.desplazamiento), valor.ambito))
 
-		fichero.write("########################################\n\n")
+		fichero.write("############################################################\n\n")

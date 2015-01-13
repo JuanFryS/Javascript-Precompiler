@@ -1,0 +1,70 @@
+//// Autor: Juan Francisco Salamanca Carmona
+//// Fecha:	24-01-2015
+////
+//// Vamos a considerar un tipo enterológico que engloba a los tipos entero y lógico. Cuando comprobamos que un elemento es de dicho tipo; 
+//// esta comprobación será positiva si el elemento es de tipo lógico o de tipo entero. Las reglas son las siguientes:
+
+//// Conjunto de símbolos terminales
+Terminales = { ->  \n  lambda  var  id  =  +=  entero  true  false  function  (  )  {  }  ,  ==  +  ||  ;
+				do  while  return  if  document.write  prompt  cadena }
+
+//// Conjunto de símbolo no terminales
+NoTerminales = { P  Pprima  S  D  Z  I  Sprima  Sdosprima  R  F  E  Eprima  T  Tprima  X  Xprima  G  Gprima  L  Lprima  W  Wprima  M  Mprima  Dprima }
+
+//// Axioma
+Axioma = P
+
+Producciones = {
+P -> Pprima
+Pprima -> F Pprima
+Pprima -> S Pprima
+Pprima -> D Pprima
+Pprima -> lambda
+S -> if ( E ) S 
+S -> do { \n S Sdosprima \n } while ( E ) \n 
+S -> document.write ( E ) ; \n
+S -> prompt ( id ) ; \n 
+S -> return R ; \n 
+S -> id Sprima
+D -> var id Z ; \n
+Z -> = I
+Z -> lambda
+I -> entero
+I -> true
+I -> false
+Sprima -> = E ; \n 
+Sprima -> + = E ; \n
+Sdosprima -> S Sdosprima
+Sdosprima -> lambda
+R -> E
+R -> lambda
+F -> function id ( W ) { \n Dprima S Sdosprima } \n
+E -> T Eprima
+Eprima -> + T Eprima
+Eprima -> lambda
+T -> X Tprima
+Tprima -> == X Tprima
+Tprima -> lambda
+X -> G Xprima
+Xprima -> || G Xprima
+Xprima -> lambda
+G -> ( E )
+G -> id Gprima
+G -> entero
+Gprima -> ( L )
+Gprima -> lambda
+L -> E Lprima
+L -> lambda
+Lprima -> , L
+Lprima -> lambda
+W -> id Wprima
+W -> lambda
+Wprima -> , W
+Wprima -> lambda
+M -> E Mprima
+M -> cadena Mprima
+Mprima -> , M
+Mprima -> lambda
+Dprima -> D Dprima
+Dprima -> lambda
+}
