@@ -32,8 +32,8 @@ class Tabla:
 	pal_res = ["var", "function", "return", "if", "do", "while", "true", "false", "prompt", "document.write"]
 	desplazamiento_ts_global = 0
 	desplazamiento_ts_local = 0
-	desplazamiento = {"entero": 2, "logico": 1, "entlog": 2}
-	tipos = ["entero", "logico", "entlog"]
+	desplazamiento = {"entero": 2, "logico": 1, "entlog": 2, "function": 0}
+	tipos = ["entero", "logico", "entlog","function"]
 
 	# Constructor
 	def __init__(self, general):
@@ -70,17 +70,18 @@ class Tabla:
 	def anadirIDTS(lexema, ambito):
 		global pal_res, entradas
 		dev = False
-#		print("(TS)Lexema: "+ lexema + " y ambito: " +ambito)
+#		print("(TS:añadirID)Lexema: "+ lexema + " y ambito: " +ambito)
 		if lexema not in pal_res:
 			if not lexema in entradas.keys() or not ambito == entradas[lexema].ambito:
-#				print("lexema: " + lexema + " y ambito: " + ambito)
+#				print("(TS:añadirID)lexema: " + lexema + " y ambito: " + ambito)
 				info = Info("", ambito, 0, 0, [])
 				entradas[lexema] = info
-#				print(entradas[lexema].ambito)
+#				print("(TS:añadirID)"+entradas[lexema].ambito)
 				dev = True
 		if not ambito == "global":
 			info = Info("function", ambito, 0, 0, [])
 			entradas[lexema] = info
+#			print("(TS:añadirID)lexema: '"+lexema +"' ambito: "+ entradas[lexema].ambito)
 			dev = True
 		return dev
 
@@ -98,18 +99,18 @@ class Tabla:
 	def anadirTipoTS(tipo, lexema, ambito):
 		global entradas, pal_res, desplazamiento_ts_global, desplazamiento_ts_local, desplazamiento, desplazamiento_ts_global
 		dev = False
-#		print("(TS)Lexema: "+ lexema + " y ambito: " +ambito)
+#		print("(TSañadirTipo)Lexema: "+ lexema +" tipo: " +tipo+ " y ambito: " +ambito)
 		if lexema in entradas.keys():
 			if tipo in tipos:
 				if lexema not in pal_res:
 					entradas[lexema].tipo = tipo
 					if ambito == "global":
-#						entradas[lexema].ambito = ambito
+						entradas[lexema].ambito = ambito
 						entradas[lexema].desplazamiento = desplazamiento_ts_global
 						desplazamiento_ts_global = desplazamiento_ts_global + desplazamiento[tipo]
 						dev = True
 					else:
-#						entradas[lexema].ambito = ambito
+						entradas[lexema].ambito = ambito
 						entradas[lexema].desplazamiento = desplazamiento_ts_local
 						desplazamiento_ts_local = desplazamiento_ts_local + desplazamiento[tipo]
 						dev = True
@@ -156,10 +157,14 @@ class Tabla:
 	def imprimirTS(fichero):
 		global entradas
 		fichero.write("\n##################### Tabla de Simbolos ####################\n")
+#		if "prueba" in entradas.keys():	
+#			print("(TSimprimir) está prueba")
+#			print("(TSimprimir) tipo: "+entradas["prueba"].tipo)
+#			print("(TSimprimir) ambito: "+entradas["prueba"].ambito)
 		for clave, valor in entradas.iteritems():
 			if valor.tipo  == "reservada":
 				fichero.write("%s\n", clave)
-			elif valor.tipo == "funcion":
+			elif valor.tipo == "function":
 				fichero.write("lexema: {0}, tipo: {1}, num_par: {2}, ".format(clave, valor.tipo, str(valor.num_par)))
 				fichero.write("tipo_par: [ ")
 				for tipo in valor.tipo_par:

@@ -26,7 +26,7 @@ ambito = "global"
 cont = 100
 aux = ""
 
-fich_tokens = open("./pruebas/tokens.txt","w")
+fich_tokens = open("./resultados/tokens.txt","w")
 ts = None
 entrada = None
 
@@ -146,14 +146,14 @@ def identificador():
 		cont = cont - 1
 #		print("contador: ")
 #		print(cont)
-		if cont == 1:
+#		if cont == 1:
 #			print("lexema:")
 #			print(lexema)
-			aux = lexema
+#			aux = lexema
 		if cont == 0:
 #			print("aux?")
 #			print(aux)
-			ts.anadirIDTS(lexema,aux)
+			ts.anadirIDTS(lexema,"")
 			cont = 1000
 		else:
 #			print("lexema:")

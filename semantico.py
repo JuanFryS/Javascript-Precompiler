@@ -13,10 +13,10 @@ import lexico
 digitos = ['0','1','2','3','4','5','6','7','8','9']
 enterologico = ["entero", "logico", "entlog"]
 tsGeneral = None
-fich_err = open("pruebas/errores.txt", "w")
-fich_parse = "pruebas/parse_" + sys.argv[1] + ".txt"
+fich_err = open("resultados/errores.txt", "w")
+fich_parse = "resultados/parse_" + sys.argv[1] + ".txt"
 parse = open(fich_parse,"w")
-fich_ts = open("./pruebas/fich_ts.txt","w")
+fich_ts = open("./resultados/fich_ts.txt","w")
 tokens = []
 sig_token = {} 
 TSactiva = None
@@ -127,14 +127,11 @@ def estadoS():
 	# S -> if(E) S1
 	if sig_token["codigo"] == tokenIF["codigo"]:
 		reglas.append("6 ")
-		print("Envio 1")
 		scan(tokenIF)
 		tokenTerm["codigo"] = "("
-		print("Envio 2")
 		scan(tokenTerm)
 		e = estadoE()
 		tokenTerm["codigo"] = ")"
-		print("Envio 3")
 		scan(tokenTerm)
 		s = estadoS()
 		if e == "logico":
@@ -145,29 +142,21 @@ def estadoS():
 	# S -> do {\n S1S'' \n}while (E)\n
 	elif sig_token["codigo"] == tokenDO["codigo"]:
 		reglas.append("7 ")
-		print("Envio 4")
 		scan(tokenDO)
 		tokenTerm["codigo"] = "{"
-		print("Envio 4")
 		scan(tokenTerm)
-		print("Envio 4")
 		scan(tokenSL)
 		s = estadoS()
 		s1 = estadoS2prima()
 		#scan(tokenSL)
 		tokenTerm["codigo"] = "}"
-		print("Envio 4")
 		scan(tokenTerm)
-		print("Envio 4")
 		scan(tokenW)
 		tokenTerm["codigo"] = "("
-		print("Envio 4")
 		scan(tokenTerm)
 		e = estadoE()
 		tokenTerm["codigo"] = ")"
-		print("Envio 4")
 		scan(tokenTerm)
-		print("Envio 4")
 		scan(tokenSL)
 		if e == "logico" and s1 == "tipo_ok":
 			return "tipo_ok"
@@ -177,18 +166,13 @@ def estadoS():
 	# S -> document.write(M); \n
 	elif sig_token["codigo"] == tokenDW["codigo"]:
 		reglas.append("8 ")
-		print("Envio 4")
 		scan(tokenDW)
 		tokenTerm["codigo"] = "("
-		print("Envio 4")
 		scan(tokenTerm)
 		m = estadoM()
 		tokenTerm["codigo"] = ")"
-		print("Envio 4")
 		scan(tokenTerm)
-		print("Envio 4")
 		scan(tokenPC)
-		print("Envio 4")
 		scan(tokenSL)
 		if m == "tipo_ok":
 			return m
@@ -199,24 +183,18 @@ def estadoS():
 	# S -> prompt(id); \n	
 	elif sig_token["codigo"] == tokenP["codigo"]:
 		reglas.append("9 ")
-		print("Envio 4")
 		scan(tokenP)
 		tokenTerm["codigo"] = "("
-		print("Envio 4")
 		scan(tokenTerm)
 		tokenID = {"codigo": sig_token["codigo"], "linea": 0, "colum": 0}
 		if TSactiva.busca_lexema(sig_token["codigo"]):
 			tipo = TSactiva.buscaTipoTS(sig_token["codigo"])
 			if tipo == "":
 				TSactiva.anadirTipoTS("entero",sig_token["codigo"], ambito)
-			print("Envio 4")
 			scan(tokenID)
 			tokenTerm["codigo"] = ")"
-			print("Envio 4")
 			scan(tokenTerm)	
-			print("Envio 4")
 			scan(tokenPC)
-			print("Envio 4")
 			scan(tokenSL)	
 			return "tipo_ok"
 		else:
@@ -225,12 +203,9 @@ def estadoS():
 	# S -> return R; \n
 	elif sig_token["codigo"] == tokenPR["codigo"]:
 		reglas.append("10 ")
-		print("Envio 41")
 		scan(tokenPR)
 		r = estadoR()
-		print("Envio 42")
 		scan(tokenPC)
-		print("Envio 43")
 		scan(tokenSL)
 		if zona_funcion:
 			if r == "enterologico":
@@ -244,7 +219,7 @@ def estadoS():
 	# S -> idS'
 	elif TSactiva.busca_lexema(sig_token["codigo"]):
 
-		print("(estadoS)lexema entrante: " + sig_token["codigo"])
+#		print("(estadoS)lexema entrante: " + sig_token["codigo"])
 		reglas.append("11 ")
 		tipo = TSactiva.buscaTipoTS(sig_token["codigo"])
 #		print("tipo: " + tipo)
@@ -252,10 +227,9 @@ def estadoS():
 			TSactiva.anadirTipoTS("entlog", sig_token["codigo"], ambito)
 #			print("tipo ahora: "+TSactiva.buscaTipoTS(sig_token["codigo"]))
 		tokenID = {"codigo": sig_token["codigo"], "linea": 0, "colum": 0}
-		print("Envio 44")
-		print("(estadoS)Token a enviar: "+tokenID["codigo"])
+#		print("(estadoS)Token a enviar: "+tokenID["codigo"])
 		scan(tokenID)
-		print("(estadoS)Sig token: "+sig_token["codigo"])
+#		print("(estadoS)Sig token: "+sig_token["codigo"])
 #		sig_token = tokens.pop()
 		sprima = estadoSprima()
 #		print(sprima)
@@ -269,16 +243,12 @@ def estadoD():
 	global TSactiva, zonaDeclaracion, reglas, ambito
 	reglas.append("12 ")
 	zonaDeclaracion = True
-	print("Envio 5")
 	scan(tokenV)
 	tokenID = {"codigo": sig_token["codigo"], "linea": 0, "colum": 0}
 	tuplaI = sig_token["codigo"]
-	print("Envio 5")
 	scan(tokenID)
 	z = estadoZ()
-	print("Envio 5")
 	scan(tokenPC)
-	print("Envio 5")
 	scan(tokenSL)
 	if not (z == "tipo_error"):
 		if TSactiva.buscaTipoTS(tokenID["codigo"]) == "":
@@ -300,7 +270,6 @@ def estadoZ():
 	tokenTerm["codigo"] = "="
 	if sig_token["codigo"] == tokenTerm["codigo"]:
 		reglas.append("13 ")
-		print("Envio 6")
 		scan(tokenTerm)
 		i = estadoI()
 		return i
@@ -314,20 +283,17 @@ def estadoI():
 	if sig_token["codigo"] == "true":
 		reglas.append("16 ")
 		tokenTerm["codigo"] = "true"
-		print("Envio 7")
 		scan(tokenTerm)
 		return "logico"
 	# I = false
 	elif sig_token["codigo"] == "false":
 		reglas.append("17 ")
 		tokenTerm["codigo"] = "false"
-		print("Envio 7")
 		scan(tokenTerm)
 		return "logico"
 	# I = entero
 	elif sig_token["codigo"].isdigit():
 		reglas.append("15 ")
-		print("Envio 7")
 		scan(sig_token)
 		return "entero"
 	# Se añade este else para contemplar un error???
@@ -342,23 +308,17 @@ def estadoSprima():
 	if sig_token["codigo"] == "=":
 		reglas.append("18 ")
 		tokenTerm["codigo"] = "="
-		print("Envio 8")
 		scan(tokenTerm)
 		e = estadoE()
-		print("Envio 8")
 		scan(tokenPC)
-		print("Envio 8")
 		scan(tokenSL)
 		return e
 	# S' -> +=E; \n
 	elif sig_token["codigo"] == tokenMI["codigo"]:
 		reglas.append("19 ")
-		print("Envio 8")
 		scan(tokenMI)
 		e = estadoE()
-		print("Envio 8")
 		scan(tokenPC)
-		print("Envio 8")
 		scan(tokenSL)
 		return e
 
@@ -396,38 +356,33 @@ def estadoF():
 	# F -> function (id)W{S}
 	if sig_token["codigo"] == tokenF["codigo"]:
 		reglas.append("24 ")
-		print("Envio 91")
 		scan(tokenF)
 		zona_funcion = True
 		tokenID = {"codigo": sig_token["codigo"], "linea": 0, "colum": 0}
 		if TSactiva.busca_lexema(tokenID["codigo"]):
-			print("Envio 92")
 			scan(tokenID)
-			TSactiva.anadirTipoTS("funcion", tokenID["codigo"],ambito)
+#			print("(estadoF) añadir tipo de: "+tokenID["codigo"])
+			TSactiva.anadirTipoTS("function", tokenID["codigo"],ambito)
+#			print("(estadoF) tipo: "+TSactiva.buscaTipoTS(tokenID["codigo"]))
 #			print("(estadoF)ambito de: "+ tokenID["codigo"]+" es: "+str(ambito))
 			ambito = tokenID["codigo"]
 #			print("(estadoF) Ambito nuevo: "+ambito)
 			tokenTerm["codigo"] = "("
-			print("Envio 93")
 			scan(tokenTerm)
 			w = estadoW()
 			tokenTerm["codigo"] = ")"
-			print("Envio 94")
 			scan(tokenTerm)
+#			print("(estadoF) Tipo args: "+w+" numero_args: "+str(len(w)))
 			TSactiva.anadirTipoArgs(tokenID["codigo"],w)
 			tokenTerm["codigo"] = "{"
-			print("Envio 95")
 			scan(tokenTerm)
-			print("Envio 96")
 			scan(tokenSL)
 			dprima = estadoDPrima()
 			s = estadoS()
 			s2prima = estadoS2prima()
-			print("(estadoF)El token actual es: " + sig_token["codigo"])
+#			print("(estadoF)El token actual es: " + sig_token["codigo"])
 			tokenTerm["codigo"] = "}"
-			print("Envio 97")
 			scan(tokenTerm)
-			print("Envio 98")
 			scan(tokenSL)
 			if s == "tipo_ok":
 				return "tipo_ok"
@@ -454,7 +409,6 @@ def estadoEprima():
 	if sig_token["codigo"] == "+":
 		reglas.append("26 ")
 		tokenTerm["codigo"] = "+"
-		print("Envio 10")
 		scan(tokenTerm)
 		t = estadoT()
 		eprima = estadoEprima()
@@ -489,7 +443,6 @@ def estadoTprima():
 	if sig_token["codigo"] == "==":
 		reglas.append("29 ")
 		tokenTerm["codigo"] = "=="
-		print("Envio 11")
 		scan(tokenTerm)
 		x = estadoX()
 		tprima = estadoTprima()
@@ -523,7 +476,6 @@ def estadoXprima():
 	if sig_token["codigo"] == "||":
 		reglas.append("32 ")
 		tokenTerm["codigo"] = "||"
-		print("Envio 12")
 		scan(tokenTerm)
 		g = estadoG()
 		xprima = estadoXprima()
@@ -544,12 +496,10 @@ def estadoG():
 	if sig_token["codigo"] == "(":
 		reglas.append("34 ")
 		tokenTerm["codigo"] = "("
-		print("Envio 13")
 		scan(tokenTerm)
 		e = estadoE()
 		if sig_token["codigo"] == ")":
 			tokenTerm["codigo"] = ")"
-			print("Envio 13")
 			scan(tokenTerm)
 			return e
 	# G -> idG'
@@ -560,7 +510,6 @@ def estadoG():
 		if tipo == "":
 			TSactiva.anadirTipoTS("entero", tokenID["codigo"],ambito)
 			tipo = TSactiva.buscaTipoTS(sig_token["codigo"])
-		print("Envio 13")
 		scan(sig_token)
 		gprima = estadoGprima()
 		if tipo in enterologico and gprima == "entlog":
@@ -576,7 +525,6 @@ def estadoG():
 	elif sig_token["codigo"].isdigit():
 		reglas.append("36 ")
 #		print("el lexema es: "+sig_token["codigo"])
-		print("Envio 13")
 		scan(sig_token)
 		return "entero"
 	else:
@@ -588,12 +536,10 @@ def estadoGprima():
 	if sig_token["codigo"] == "(":
 		reglas.append("37 ")
 		tokenTerm["codigo"] = "("
-		print("Envio 14")
 		scan(tokenTerm)
 		l = estadoL()
 		if sig_token["codigo"] == ")":
 			tokenTerm["codigo"] = ")"
-			print("Envio 14")
 			scan(tokenTerm)
 			return l
 		else:
@@ -630,7 +576,6 @@ def estadoLprima():
 	if sig_token["codigo"] == ",":
 		reglas.append("41 ")
 		tokenTerm["codigo"] = ","
-		print("Envio 15")
 		scan(tokenTerm)
 		l = estadoL()
 		return l
@@ -646,12 +591,12 @@ def estadoW():
 		reglas.append("43 ")
 #		print(ambito)
 		TSactiva.anadirTipoTS("entlog", sig_token["codigo"], ambito)
-		print("Envio 16")
 		scan(sig_token)
 		auxiliar.append("entlog")
 		wprima = estadoWprima()
+#		print("(EstadoW) retrun wprima:"+wprima)
 		if wprima == "tipo_ok":
-			return "entlog"
+			return auxiliar
 		else:
 			t = tuple(auxiliar)
 			return t
@@ -666,7 +611,6 @@ def estadoWprima():
 	if sig_token["codigo"] == ",":
 		reglas.append("45 ")
 		tokenTerm["codigo"] = ","
-		print("Envio 17")
 		scan(tokenTerm)
 		w = estadoW()
 		return w
@@ -690,7 +634,6 @@ def estadoM():
 			return "tipo_error"
 	elif sig_token["codigo"] == tokenCad["codigo"]:
 		reglas.append("48 ")
-		print("Envio 18")
 		scan(tokenTerm)
 		mprima = estadoMPrima()
 		return mprima
@@ -700,7 +643,6 @@ def estadoMPrima():
 	if sig_token["codigo"] == ",":
 		tokenTerm["codigo"] = ","
 		reglas.append("49 ")
-		print("Envio 19")
 		scan(tokenTerm)
 		m = estadoM()
 		return m
