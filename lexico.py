@@ -26,19 +26,22 @@ ambito = "global"
 cont = 100
 aux = ""
 
-fich_tokens = open("./resultados/tokens.txt","w")
+fich_tokens_nuevo = "tokens_"+sys.argv[1]+".txt"
+fich_tokens = open(fich_tokens_nuevo,"w")
+fich_error = None
 ts = None
 entrada = None
 
 # Axioma S. Seria el primer estado del AFD
 
-def main(entradaSem, tablaGeneral, nombre, fich_error):
-	global lexema,letras,sep,ops,caracter,linea,colum,tokens, entrada, ts
+def main(entradaSem, tablaGeneral, nombre, fichero_error):
+	global lexema,letras,sep,ops,caracter,linea,colum,tokens, entrada, ts, fich_error
 	entrada = entradaSem
 	ts = tablaGeneral
 	fich_tokens.write("---------------> ")
 	fich_tokens.write(nombre)
 	fich_tokens.write(" <---------------\n")
+	fich_error = fichero_error
 
 	caracter = sigCar()
 	while(caracter):
@@ -83,6 +86,7 @@ def main(entradaSem, tablaGeneral, nombre, fich_error):
 			else: 
 				caracter = None		
 		else: # CASO EN EL QUE NO SE CUMPLA NINGUNA DE LAS REGLAS ANTERIORES -> LO LEIDO NO ES ENTENDIDO POR LA GRAMATICA
+			print("ERROR: "+caracter+" no es un simbolo valido ["+str(linea+1)+","+str(colum)+"]\n")
 			fich_tokens.write("ERROR: "+caracter+" no es un simbolo valido ["+str(linea+1)+","+str(colum)+"]\n")
 			caracter = sigCar();
 	fich_tokens.close()
@@ -105,7 +109,7 @@ def cadena():
 	TokenCAD(lexema)
 
 def operador():
-	global lexema, caracter
+	global lexema, caracter, fich_error
 #	caracter = sigCar()
 	if caracter == '=':
 		lexema = lexema + caracter
@@ -122,7 +126,7 @@ def operador():
 		fich_error.write("ERROR: "+lexema+" no es un simbolo valido ["+str(linea+1)+","+str(colum-1)+"]")
 
 def identificador():
-	global lexema, caracter, ambito, ts,cont,aux
+	global lexema, caracter, ambito, ts,cont,aux, fich_error
 #	caracter = sigCar()
 	while caracter in letras or caracter in digitos or caracter == '_':
 		lexema += caracter
@@ -171,7 +175,7 @@ def identificador():
 		TokenID(lexema)
 		
 def escritura():
-	global lexema, caracter
+	global lexema, caracter, fich_error
 	while caracter in letras:
 		lexema = lexema + caracter
 		caracter = sigCar()

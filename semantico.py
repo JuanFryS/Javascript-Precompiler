@@ -13,10 +13,12 @@ import lexico
 digitos = ['0','1','2','3','4','5','6','7','8','9']
 enterologico = ["entero", "logico", "entlog"]
 tsGeneral = None
-fich_err = open("resultados/errores.txt", "w")
-fich_parse = "resultados/parse_" + sys.argv[1] + ".txt"
+fich_err_nuevo = "errores_"+sys.argv[1]+".txt"
+fich_err = open(fich_err_nuevo, "w")
+fich_parse = "parse_" + sys.argv[1] + ".txt"
 parse = open(fich_parse,"w")
-fich_ts = open("./resultados/fich_ts.txt","w")
+fich_ts_nuevo = "tabla_simbolos_" + sys.argv[1] + ".txt"
+fich_ts = open(fich_ts_nuevo,"w")
 tokens = []
 sig_token = {} 
 TSactiva = None
@@ -40,7 +42,7 @@ tokenTerm = {"codigo" : "", "linea": 0, "colum": 0}
 
 def error(token):
 	print("ERROR: En la línea " + str(token["linea"]) + ", columna " + str(token["colum"]) + " se esperaba " + token["codigo"])
-	fich_err.write("ERROR: En la línea " + str(token["linea"]) + ", columna " + str(token["colum"]) + " se recibe el valor no esperado: " + token["codigo"] + "\n")
+	fich_err.write("ERROR: En la línea " + str(token["linea"]) + ", columna " + str(token["colum"]) + " se esperaba: " + token["codigo"] + "\n")
 
 def scan(token):
 	global sig_token
@@ -48,7 +50,6 @@ def scan(token):
 		sig_token = tokens.pop()
 		return True	
 	else:
-		print("(Scan)Llega: "+token["codigo"]+" y se esperaba: "+sig_token["codigo"])
 		error(sig_token)
 		return False
 
@@ -82,7 +83,7 @@ def estadoP():
 	
 	estadoPprima()
 	
-	tsGeneral.imprimirTS(fich_ts)
+	tsGeneral.imprimirTS(fich_ts,"global")
 	tsGeneral.vaciar()
 
 def estadoPprima():
@@ -96,6 +97,8 @@ def estadoPprima():
 		if f == "tipo_ok":
 			return pp
 		else:
+			fich_err.write("ERROR: en la línea " + str(sig_token["linea"]) + " se ha producido un error en la funcion con el token " + sig_token["codigo"] + "\n")
+			print("ERROR: en la línea " + str(sig_token["linea"]) + " se ha producido un error en la funcion con el token " + sig_token["codigo"])
 			return "tipo_error"
 
 	# Caso P' -> SP'1
@@ -107,6 +110,8 @@ def estadoPprima():
 		if s == "tipo_ok":
 			return pp
 		else:
+			fich_err.write("ERROR: en la línea " + str(sig_token["linea"]) + " se ha producido un error en la sentencia con el token " + sig_token["codigo"] + "\n")
+			print("ERROR: en la línea " + str(sig_token["linea"]) + " se ha producido un error en la funcion con el token " + sig_token["codigo"])
 			return "tipo_error"
 
 	# Caso P' -> DP'1
@@ -148,7 +153,6 @@ def estadoS():
 		scan(tokenSL)
 		s = estadoS()
 		s1 = estadoS2prima()
-		#scan(tokenSL)
 		tokenTerm["codigo"] = "}"
 		scan(tokenTerm)
 		scan(tokenW)
@@ -219,20 +223,13 @@ def estadoS():
 	# S -> idS'
 	elif TSactiva.busca_lexema(sig_token["codigo"]):
 
-#		print("(estadoS)lexema entrante: " + sig_token["codigo"])
 		reglas.append("11 ")
 		tipo = TSactiva.buscaTipoTS(sig_token["codigo"])
-#		print("tipo: " + tipo)
 		if tipo == "":
 			TSactiva.anadirTipoTS("entlog", sig_token["codigo"], ambito)
-#			print("tipo ahora: "+TSactiva.buscaTipoTS(sig_token["codigo"]))
 		tokenID = {"codigo": sig_token["codigo"], "linea": 0, "colum": 0}
-#		print("(estadoS)Token a enviar: "+tokenID["codigo"])
 		scan(tokenID)
-#		print("(estadoS)Sig token: "+sig_token["codigo"])
-#		sig_token = tokens.pop()
 		sprima = estadoSprima()
-#		print(sprima)
 		if TSactiva.buscaTipoTS(sig_token["codigo"]) in enterologico and sprima in enterologico:
 			return "tipo_ok"
 		else:
@@ -245,7 +242,6 @@ def estadoD():
 	zonaDeclaracion = True
 	scan(tokenV)
 	tokenID = {"codigo": sig_token["codigo"], "linea": 0, "colum": 0}
-	tuplaI = sig_token["codigo"]
 	scan(tokenID)
 	z = estadoZ()
 	scan(tokenPC)
@@ -255,14 +251,16 @@ def estadoD():
 			TSactiva.anadirTipoTS(z,tokenID["codigo"], ambito)
 		else:
 			zonaDeclaracion = False
-			error(sig_token["codigo"])
+			fich_err.write("ERROR: en la línea " + str(sig_token["linea"]) + " se ha producido un error en la inicialización (variable ya inicializada) con el token " + sig_token["codigo"] + "\n")
+			print("ERROR: en la línea " + str(sig_token["linea"]) + " se ha producido un error en la inicialización (variable ya inicializada) con el token " + sig_token["codigo"])
 			return "tipo_error"
 		zonaDeclaracion = False
 		return "tipo_ok"
 	else:
-			error(sig_token["codigo"])
-			zonaDeclaracion = False
-			return "tipo_error"
+		fich_err.write("ERROR: en la línea " + str(sig_token["linea"]) + " se ha producido un error en la inicialización (tipo erróneo) con el token" + sig_token["codigo"] + "\n")
+		print("ERROR: en la línea " + str(sig_token["linea"]) + " se ha producido un error en la inicialización (tipo erróneo) con el token" + sig_token["codigo"])
+		zonaDeclaracion = False
+		return "tipo_error"
 			
 def estadoZ():
 	global tokenTerm,sig_token,reglas, ambito
@@ -296,9 +294,8 @@ def estadoI():
 		reglas.append("15 ")
 		scan(sig_token)
 		return "entero"
-	# Se añade este else para contemplar un error???
 	else:
-		error(sig_token["codigo"])
+		error(sig_token)
 		return "tipo_error"
 
 def estadoSprima():
@@ -361,18 +358,13 @@ def estadoF():
 		tokenID = {"codigo": sig_token["codigo"], "linea": 0, "colum": 0}
 		if TSactiva.busca_lexema(tokenID["codigo"]):
 			scan(tokenID)
-#			print("(estadoF) añadir tipo de: "+tokenID["codigo"])
 			TSactiva.anadirTipoTS("function", tokenID["codigo"],ambito)
-#			print("(estadoF) tipo: "+TSactiva.buscaTipoTS(tokenID["codigo"]))
-#			print("(estadoF)ambito de: "+ tokenID["codigo"]+" es: "+str(ambito))
 			ambito = tokenID["codigo"]
-#			print("(estadoF) Ambito nuevo: "+ambito)
 			tokenTerm["codigo"] = "("
 			scan(tokenTerm)
 			w = estadoW()
 			tokenTerm["codigo"] = ")"
 			scan(tokenTerm)
-#			print("(estadoF) Tipo args: "+w+" numero_args: "+str(len(w)))
 			TSactiva.anadirTipoArgs(tokenID["codigo"],w)
 			tokenTerm["codigo"] = "{"
 			scan(tokenTerm)
@@ -380,15 +372,19 @@ def estadoF():
 			dprima = estadoDPrima()
 			s = estadoS()
 			s2prima = estadoS2prima()
-#			print("(estadoF)El token actual es: " + sig_token["codigo"])
 			tokenTerm["codigo"] = "}"
 			scan(tokenTerm)
 			scan(tokenSL)
+			for elem in auxiliar[:]:
+				auxiliar.remove(elem)
+			TSactiva.imprimirTS(fich_ts, ambito)
+			TSactiva.cambiarAmbito()
+			ambito = "global"			
+			zona_funcion = False
 			if s == "tipo_ok":
 				return "tipo_ok"
 			else:
 				s == "tipo_error"
-			zona_funcion = False
 
 def estadoE():
 	global reglas, ambito
@@ -524,7 +520,6 @@ def estadoG():
 	# G -> ent
 	elif sig_token["codigo"].isdigit():
 		reglas.append("36 ")
-#		print("el lexema es: "+sig_token["codigo"])
 		scan(sig_token)
 		return "entero"
 	else:
@@ -589,12 +584,10 @@ def estadoW():
 	#W -> idW'
 	if TSactiva.busca_lexema(sig_token["codigo"]):
 		reglas.append("43 ")
-#		print(ambito)
 		TSactiva.anadirTipoTS("entlog", sig_token["codigo"], ambito)
 		scan(sig_token)
 		auxiliar.append("entlog")
 		wprima = estadoWprima()
-#		print("(EstadoW) retrun wprima:"+wprima)
 		if wprima == "tipo_ok":
 			return auxiliar
 		else:
@@ -630,7 +623,7 @@ def estadoM():
 		if e in enterologico and not mprima == "tipo_error":
 			return "tipo_ok"
 		else:
-			error(sig_token["codigo"])
+			error(sig_token)
 			return "tipo_error"
 	elif sig_token["codigo"] == tokenCad["codigo"]:
 		reglas.append("48 ")

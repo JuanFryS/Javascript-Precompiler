@@ -78,9 +78,10 @@ class Tabla:
 				entradas[lexema] = info
 #				print("(TS:añadirID)"+entradas[lexema].ambito)
 				dev = True
-		if not ambito == "global":
-			info = Info("function", ambito, 0, 0, [])
-			entradas[lexema] = info
+	#	if not ambito == "global":
+	#		print("(añadirIDTS) El lexema es: "+lexema)
+	#		info = Info("function", ambito, 0, 0, [])
+	#		entradas[lexema] = info
 #			print("(TS:añadirID)lexema: '"+lexema +"' ambito: "+ entradas[lexema].ambito)
 			dev = True
 		return dev
@@ -147,32 +148,32 @@ class Tabla:
 		global entradas
 		entradas.clear()
 
-	# Cambia ámbito convierte el desplazamiento local en 0
-	@staticmethod 
+	@staticmethod
 	def cambiarAmbito():
 		global desplazamiento_ts_local
-		self.desplazamiento_ts_local = 0
+		desplazamiento_ts_local = 0
 
 	@staticmethod 
-	def imprimirTS(fichero):
-		global entradas
-		fichero.write("\n##################### Tabla de Simbolos ####################\n")
-#		if "prueba" in entradas.keys():	
-#			print("(TSimprimir) está prueba")
-#			print("(TSimprimir) tipo: "+entradas["prueba"].tipo)
-#			print("(TSimprimir) ambito: "+entradas["prueba"].ambito)
+	def imprimirTS(fichero,nombreTabla):
+		global entradas,desplazamiento_ts_local
+		if nombreTabla == "global":
+			fichero.write("----> Tabla General <----\n")
+		else:
+			fichero.write("----> Tabla Local: '")
+			fichero.write(nombreTabla)
+			fichero.write("' <----\n")
 		for clave, valor in entradas.iteritems():
-			if valor.tipo  == "reservada":
-				fichero.write("%s\n", clave)
-			elif valor.tipo == "function":
-				fichero.write("lexema: {0}, tipo: {1}, num_par: {2}, ".format(clave, valor.tipo, str(valor.num_par)))
-				fichero.write("tipo_par: [ ")
-				for tipo in valor.tipo_par:
-					fichero.write("{0} ".format(tipo))
-				fichero.write("], ")
-				fichero.write("ambito: {0}\n".format(valor.ambito))
-			elif valor.tipo == "entero" or valor.tipo == "entlog" or valor.tipo == "logico":
-				fichero.write("lexema: {0}, tipo: {1}, desplazamiento: {2}, ambito: {3}\n".format(clave, 
-					valor.tipo, str(valor.desplazamiento), valor.ambito))
-
-		fichero.write("############################################################\n\n")
+			if nombreTabla == valor.ambito:
+				if valor.tipo  == "reservada":
+					fichero.write("%s\n", clave)
+				elif valor.tipo == "function":
+					fichero.write("lexema: {0}, tipo: {1}, num_par: {2}, ".format(clave, valor.tipo, str(valor.num_par)))
+					fichero.write("tipo_par: [ ")
+					for tipo in valor.tipo_par:
+						fichero.write("{0} ".format(tipo))
+					fichero.write("], ")
+					fichero.write("ambito: {0}\n".format(valor.ambito))
+				elif valor.tipo == "entero" or valor.tipo == "entlog" or valor.tipo == "logico":
+					fichero.write("lexema: {0}, tipo: {1}, desplazamiento: {2}, ambito: {3}\n".format(clave, 
+						valor.tipo, str(valor.desplazamiento), valor.ambito))
+		fichero.write("\n")
