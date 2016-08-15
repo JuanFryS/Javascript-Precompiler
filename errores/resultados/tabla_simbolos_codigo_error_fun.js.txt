@@ -1,0 +1,9 @@
+---------------> Tabla de simbolos de: codigo_error_fun.js <---------------
+----> Tabla Local: 'prueba' <----
+lexema: control, tipo: entlog, desplazamiento: 0, ambito: prueba
+lexema: mayorEdad, tipo: entlog, desplazamiento: 2, ambito: prueba
+
+----> Tabla General <----
+lexema: a, tipo: entero, desplazamiento: 0, ambito: global
+lexema: prueba, tipo: function, num_par: 1, tipo_par: [ entlog ], ambito: global
+

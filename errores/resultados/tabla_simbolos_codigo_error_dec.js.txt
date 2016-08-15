@@ -1,0 +1,6 @@
+---------------> Tabla de simbolos de: codigo_error_dec.js <---------------
+----> Tabla General <----
+lexema: a, tipo: entero, desplazamiento: 0, ambito: global
+lexema: x, tipo: logico, desplazamiento: 2, ambito: global
+lexema: z, tipo: entero, desplazamiento: 3, ambito: global
+

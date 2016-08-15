@@ -1,0 +1,6 @@
+ERROR: En la línea 1, columna 34 se esperaba: mayorEdad
+ERROR: En la línea 1, columna 34 se esperaba: mayorEdad
+ERROR: En la línea 1, columna 34 se esperaba: mayorEdad
+ERROR: En la línea 1, columna 34 se esperaba: )
+ERROR: En la línea 1, columna 34 se esperaba: )
+ERROR: en la línea 1 se ha producido un error en la funcion con el token )

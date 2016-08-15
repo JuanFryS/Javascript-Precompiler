@@ -1,0 +1,8 @@
+---------------> Tabla de simbolos de: codigo_error_id.js <---------------
+----> Tabla General <----
+lexema: a, tipo: entero, desplazamiento: 0, ambito: global
+lexema: e, tipo: entero, desplazamiento: 7, ambito: global
+lexema: b, tipo: logico, desplazamiento: 2, ambito: global
+lexema: ab, tipo: entero, desplazamiento: 3, ambito: global
+lexema: cd, tipo: entlog, desplazamiento: 5, ambito: global
+

@@ -1,0 +1,2 @@
+ERROR: en la línea 3 se ha producido un error en la sentencia con el token (
+ERROR: en la línea 3 se ha producido un error en la sentencia con el token (

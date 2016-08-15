@@ -1,0 +1,3 @@
+Error en la línea 3, columna 7: se recibe un punto (.) cuando no correspondeERROR: En la línea 3, columna 10 se esperaba: cd
+ERROR: En la línea 3, columna 10 se esperaba: cd
+ERROR: en la línea 0 se ha producido un error en la sentencia con el token EOF

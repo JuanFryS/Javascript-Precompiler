@@ -1,0 +1,7 @@
+---------------> Tabla de simbolos de: codigo_error_dw.js <---------------
+----> Tabla General <----
+lexema: write, tipo: entlog, desplazamiento: 4, ambito: global
+lexema: document, tipo: entlog, desplazamiento: 2, ambito: global
+lexema: fin, tipo: logico, desplazamiento: 0, ambito: global
+lexema: inicio, tipo: logico, desplazamiento: 1, ambito: global
+

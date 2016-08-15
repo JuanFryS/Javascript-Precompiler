@@ -1,0 +1,2 @@
+ERROR: en la línea 5 se ha producido un error en la inicialización (variable ya inicializada) con el token if
+ERROR: en la línea 0 se ha producido un error en la sentencia con el token EOF

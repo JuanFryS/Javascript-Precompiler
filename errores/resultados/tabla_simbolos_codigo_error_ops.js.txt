@@ -1,0 +1,7 @@
+---------------> Tabla de simbolos de: codigo_error_ops.js <---------------
+----> Tabla General <----
+lexema: a, tipo: entero, desplazamiento: 0, ambito: global
+lexema: x, tipo: logico, desplazamiento: 4, ambito: global
+lexema: b, tipo: entero, desplazamiento: 2, ambito: global
+lexema: z, tipo: entlog, desplazamiento: 5, ambito: global
+
